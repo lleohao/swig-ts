@@ -1,0 +1,36 @@
+{
+  "name": "swig-tp",
+  "version": "0.0.1",
+  "description": "Use typescipt rewrite swig",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test",
+    "build": "tsc -p ./src",
+    "dev": "tsc -p ./src -w",
+    "prepublish": "npm run build"
+  },
+  "files": [
+    "lib",
+    "typings"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lleohao/swig-tp.git"
+  },
+  "keywords": [
+    "swig",
+    "typesctipt",
+    "template",
+    "templateing"
+  ],
+  "author": "lleohao <lleohao@hotmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lleohao/swig-tp/issues"
+  },
+  "homepage": "https://github.com/lleohao/swig-tp#readme",
+  "devDependencies": {
+    "ts-lint": "^4.5.1",
+    "typescript": "^2.3.4"
+  }
+}
