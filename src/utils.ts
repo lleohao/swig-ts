@@ -1,3 +1,36 @@
+const isArray = Array.isArray;
+
+export namespace Utils {
+    export interface Object {
+        [key: string]: any;
+    }
+}
+
+export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
+    let i, l;
+
+    if (isArray(obj)) {
+        i = 0;
+        l = obj.length;
+        for (i; i < l; i += 1) {
+            if (fn(obj[i], i, obj) === false) {
+                break;
+            }
+        }
+    } else {
+        for (i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                if (fn(obj[i], i, obj) === false) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return obj;
+}
+
+
 /**
  * Throw an error with possiable line number and source file.
  * @param message Error message
