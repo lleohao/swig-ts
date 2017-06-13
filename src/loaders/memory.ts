@@ -1,7 +1,7 @@
 import { dirname, normalize, resolve } from 'path';
 import { throwError } from '../utils';
 
-import { TemplateLoader } from './interface';
+import { TemplateLoader } from './index';
 
 /**
  * Hash object with template paths as keys and template sources as values.
@@ -24,7 +24,7 @@ export interface MemoryInterface {
 export const memory = (mapping: MemoryInterface, basepath?: string | null) => {
     basepath = (basepath) ? normalize(basepath) : null;
 
-    const vet: TemplateLoader = {
+    const vet: TemplateLoader.templateLoader = {
         reslove: (to, from) => {
             if (basepath) {
                 from = basepath;

@@ -1,13 +1,13 @@
 import { dirname, normalize, resolve } from 'path';
 import { readFileSync, readFile } from 'fs';
 
-import { TemplateLoader } from './interface';
+import { TemplateLoader } from './index';
 
 export const fs = (basepath: string | null, encoding: string) => {
     encoding = encoding || 'utf8';
     basepath = (basepath) ? normalize(basepath) : null;
 
-    const vet: TemplateLoader = {
+    const vet: TemplateLoader.templateLoader = {
         reslove: (to, from) => {
             if (basepath) {
                 from = basepath;
