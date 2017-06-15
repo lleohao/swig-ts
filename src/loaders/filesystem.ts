@@ -3,8 +3,7 @@ import { readFileSync, readFile } from 'fs';
 
 import { TemplateLoader } from './index';
 
-export const fs = (basepath: string | null, encoding: string) => {
-    encoding = encoding || 'utf8';
+export const fs = (basepath: string | null = '', encoding: string = 'utf8') => {
     basepath = (basepath) ? normalize(basepath) : null;
 
     const vet: TemplateLoader.templateLoader = {

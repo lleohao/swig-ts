@@ -1,4 +1,4 @@
-const isArray = Array.isArray;
+export const isArray = Array.isArray;
 
 export namespace Utils {
     export interface Object {
@@ -28,6 +28,22 @@ export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
     }
 
     return obj;
+}
+
+export const extend = (...args: any[]): Object => {
+    let target = args[0];
+    let objs = (args.length > 1) ? Array.prototype.slice.call(args, 1) : [];
+
+    for (let i = 0; i < objs.length; i++) {
+        let obj = objs[i] || {};
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                (target as any)[key] = obj[key];
+            }
+        }
+    }
+
+    return target;
 }
 
 
