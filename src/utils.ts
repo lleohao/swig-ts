@@ -1,3 +1,52 @@
+export const isArray = Array.isArray;
+
+export namespace Utils {
+    export interface Object {
+        [key: string]: any;
+    }
+}
+
+export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
+    let i, l;
+
+    if (isArray(obj)) {
+        i = 0;
+        l = obj.length;
+        for (i; i < l; i += 1) {
+            if (fn(obj[i], i, obj) === false) {
+                break;
+            }
+        }
+    } else {
+        for (i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                if (fn(obj[i], i, obj) === false) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return obj;
+}
+
+export const extend = (...args: any[]): Object => {
+    let target = args[0];
+    let objs = (args.length > 1) ? Array.prototype.slice.call(args, 1) : [];
+
+    for (let i = 0; i < objs.length; i++) {
+        let obj = objs[i] || {};
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                (target as any)[key] = obj[key];
+            }
+        }
+    }
+
+    return target;
+}
+
+
 /**
  * Throw an error with possiable line number and source file.
  * @param message Error message
