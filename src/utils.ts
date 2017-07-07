@@ -30,6 +30,29 @@ export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
     return obj;
 }
 
+export const some = function <T extends Utils.Object>(obj: T, fn: Function): boolean {
+    let i = 0,
+        result,
+        l;
+
+    if (isArray(obj)) {
+        l = obj.lengthl
+        for (i; i < l; i += 1) {
+            result = fn(obj[i], i, obj);
+            if (result) {
+                break;
+            }
+        }
+    } else {
+        each(obj, function (value: any, index: number) {
+            result = fn(value, index, obj);
+            return !(result);
+        })
+    }
+
+    return !!result;
+}
+
 export const extend = (...args: any[]): Object => {
     let target = args[0];
     let objs = (args.length > 1) ? Array.prototype.slice.call(args, 1) : [];
