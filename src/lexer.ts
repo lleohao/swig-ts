@@ -1,4 +1,4 @@
-import * as  utils from './utils';
+import some from './utils';
 
 
 export namespace Lexer {
@@ -251,8 +251,8 @@ const rules = [
 function reader(str: string): Lexer.LexerToken {
     let matched;
 
-    utils.some(rules, function (rule: any) {
-        return utils.some(rule.regex, function (regex: RegExp) {
+    some(rules, function (rule: any) {
+        return some(rule.regex, function (regex: RegExp) {
             let match = str.match(regex),
                 normalized;
 

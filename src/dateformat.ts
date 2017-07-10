@@ -16,7 +16,7 @@ export class DateZ implements DateZ {
     private dateZ: Date;
     private timezoneOffset: number;
 
-    constructor(...argument: number[]) {
+    constructor(...argument: any[]) {
         const members = {
             'default': ['getUTCDate', 'getUTCDay', 'getUTCFullYear', 'getUTCHours', 'getUTCMilliseconds', 'getUTCMinutes', 'getUTCMonth', 'getUTCSeconds', 'toISOString', 'toGMTString', 'toUTCString', 'valueOf', 'getTime'],
             z: ['getDate', 'getDay', 'getFullYear', 'getHours', 'getMilliseconds', 'getMinutes', 'getMonth', 'getSeconds', 'getYear', 'toDateString', 'toLocaleDateString', 'toLocaleTimeString']

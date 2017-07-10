@@ -53,6 +53,24 @@ export const some = function <T extends Utils.Object>(obj: T, fn: Function): boo
     return !!result;
 }
 
+export const map = function <T extends Utils.Object>(obj: T, fn: Function): Utils.Object {
+    let result: Utils.Object = {};
+
+    if (isArray(obj)) {
+        for (let i = 0, l = obj.length; i < l; i += 1) {
+            result[i] = fn(obj[i], i, obj);
+        }
+    } else {
+        for (let i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                result[i] = fn(obj[i], i);
+            }
+        }
+    }
+
+    return result;
+}
+
 export const extend = (...args: any[]): Object => {
     let target = args[0];
     let objs = (args.length > 1) ? Array.prototype.slice.call(args, 1) : [];
@@ -67,6 +85,20 @@ export const extend = (...args: any[]): Object => {
     }
 
     return target;
+}
+
+export const keys = function (obj: any) {
+    if (!obj) {
+        return [];
+    }
+
+    if (Object.keys) {
+        return Object.keys(obj);
+    }
+
+    return map(obj, function (v: any, k: any) {
+        return k;
+    })
 }
 
 
