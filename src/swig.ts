@@ -1,75 +1,72 @@
 import * as utils from './utils';
 import { fs, TemplateLoader } from './loaders';
 
-export namespace Swig {
-    export interface obj {
-        [key: string]: any;
-    }
+export interface obj {
+    [key: string]: any;
+}
 
-    export interface CacheOptions {
-        get: (key: string) => string;
-        set: (key: string, val: string) => boolean;
-    }
+export interface CacheOptions {
+    get: (key: string) => string;
+    set: (key: string, val: string) => boolean;
+}
 
+/**
+ * Swig Options Object. This object can be passed to many of the API-level Swig methods to control various aspects of the engine. All keys are optional.
+ * 
+ * @export
+ * @memberof Swig
+ * @interface DefaultOptions
+ */
+export interface SwigOptions extends obj, Object {
     /**
-     * Swig Options Object. This object can be passed to many of the API-level Swig methods to control various aspects of the engine. All keys are optional.
+     * Controls whether or not variable output will automatically be escaped for safe HTML output. Defaults to <code data-language="js">true</code>. Functions executed in variable statements will not be auto-escaped. Your application/functions should take care of their own auto-escaping.
      * 
-     * @export
-     * @memberof Swig
-     * @interface DefaultOptions
+     * @type {boolean}
+     * @memberOf DefaultOptions
      */
-    export interface Options extends Object {
-        /**
-         * Controls whether or not variable output will automatically be escaped for safe HTML output. Defaults to <code data-language="js">true</code>. Functions executed in variable statements will not be auto-escaped. Your application/functions should take care of their own auto-escaping.
-         * 
-         * @type {boolean}
-         * @memberOf DefaultOptions
-         */
-        autoescape?: boolean;
-        /**
-         * Open and close controls for variables. Defaults to <code data-language="js">['{{', '}}']</code>.
-         * 
-         * @type {string[]}
-         * @memberOf DefaultOptions
-         */
-        varControls?: string[];
-        /**
-         * Open and close controls for tags. Defaults to <code data-language="js">['{%', '%}']</code>.
-         * 
-         * @type {string[]}
-         * @memberOf DefaultOptions
-         */
-        tagControls?: string[];
-        /**
-         * Open and close controls for comments. Defaults to <code data-language="js">['{#', '#}']</code>.
-         * 
-         * @type {string[]}
-         * @memberOf DefaultOptions
-         */
-        cmtControls?: string[];
-        /**
-         * Default variable context to be passed to <strong>all</strong> templates.
-         * 
-         * @type {obj}
-         * @memberOf DefaultOptions
-         */
-        locals?: obj;
-        /**
-         * Cache control for templates. Defaults to saving in <code data-language="js">'memory'</code>. Send <code data-language="js">false</code> to disable. Send an object with <code data-language="js">get</code> and <code data-language="js">set</code> functions to customize.
-         * 
-         * @type {boolean|string|CacheOptions}
-         * @memberOf DefaultOptions
-         */
-        cache?: boolean | string | CacheOptions;
-        /**
-         * The method that Swig will use to load templates. Defaults to <var>swig.loaders.fs</var>.
-         * 
-         * @type {TemplateLoader.templateLoader}
-         * @memberOf DefaultOptions
-         */
-        loader?: TemplateLoader.templateLoader;
-        [key: string]: any;
-    }
+    autoescape: boolean;
+    /**
+     * Open and close controls for variables. Defaults to <code data-language="js">['{{', '}}']</code>.
+     * 
+     * @type {string[]}
+     * @memberOf DefaultOptions
+     */
+    varControls: string[];
+    /**
+     * Open and close controls for tags. Defaults to <code data-language="js">['{%', '%}']</code>.
+     * 
+     * @type {string[]}
+     * @memberOf DefaultOptions
+     */
+    tagControls: string[];
+    /**
+     * Open and close controls for comments. Defaults to <code data-language="js">['{#', '#}']</code>.
+     * 
+     * @type {string[]}
+     * @memberOf DefaultOptions
+     */
+    cmtControls: string[];
+    /**
+     * Default variable context to be passed to <strong>all</strong> templates.
+     * 
+     * @type {obj}
+     * @memberOf DefaultOptions
+     */
+    locals: obj;
+    /**
+     * Cache control for templates. Defaults to saving in <code data-language="js">'memory'</code>. Send <code data-language="js">false</code> to disable. Send an object with <code data-language="js">get</code> and <code data-language="js">set</code> functions to customize.
+     * 
+     * @type {boolean|string|CacheOptions}
+     * @memberOf DefaultOptions
+     */
+    cache?: boolean | string | CacheOptions;
+    /**
+     * The method that Swig will use to load templates. Defaults to <var>swig.loaders.fs</var>.
+     * 
+     * @type {TemplateLoader.templateLoader}
+     * @memberOf DefaultOptions
+     */
+    loader: TemplateLoader.templateLoader;
 }
 
 
@@ -81,7 +78,7 @@ export namespace Swig {
 export const version: string = '0.0.1';
 
 
-const defaultOptions: Swig.Options = {
+const defaultOptions: SwigOptions = {
     autoescape: true,
     varControls: ['{{', '}}'],
     tagControls: ['{%', '%}'],
@@ -133,7 +130,7 @@ let defaultInstance;
  */
 function efn() { return '' };
 
-function validateOptions(options: Swig.Options) {
+function validateOptions(options: SwigOptions) {
     utils.each(['varControls', 'tagControls', 'cmtControls'], (key: string) => {
         if (!options.hasOwnProperty(key)) {
             return;
@@ -171,10 +168,10 @@ function validateOptions(options: Swig.Options) {
  * @class Swig
  */
 export class Swig {
-    private options: Swig.Options;
+    private options: any;
     private cache: { [key: string]: string };
     private extensions: {};
-    private filter: { [key: string]: Function  };
+    private filter: { [key: string]: Function };
 
     /**
      * Creates an instance of Swig.
@@ -182,7 +179,7 @@ export class Swig {
      * 
      * @memberOf Swig
      */
-    constructor(opts: Swig.Options = {}) {
+    constructor(opts: SwigOptions) {
         validateOptions(opts);
         this.options = utils.extend({}, defaultOptions, opts);
         this.cache = {};
@@ -190,7 +187,7 @@ export class Swig {
         this.filter = {};
     }
 
-    private getLocals(options?: Swig.Options) {
+    private getLocals(options?: SwigOptions) {
         if (!options || !options.locals) {
             return this.options.locals;
         }
@@ -198,11 +195,11 @@ export class Swig {
         return utils.extend({}, this.options.locals, options.locals);
     }
 
-    private shouldCache(options: Swig.Options = {}) {
+    private shouldCache(options: any = {}) {
         return (options.hasOwnProperty('cache') && !options.cache) || !this.options.cache;
     }
 
-    private cacheGet(key: string, options: Swig.Options) {
+    private cacheGet(key: string, options: SwigOptions) {
         if (this.shouldCache(options)) {
             return;
         }
@@ -211,10 +208,10 @@ export class Swig {
             return this.cache[key];
         }
 
-        return (<Swig.CacheOptions>this.options.cache).get(key);
+        return (<CacheOptions>this.options.cache).get(key);
     }
 
-    private cacheSet(key: string, options: Swig.Options, val: string) {
+    private cacheSet(key: string, options: SwigOptions, val: string) {
         if (this.shouldCache(options)) {
             return;
         }
@@ -224,7 +221,7 @@ export class Swig {
             return;
         }
 
-        (<Swig.CacheOptions>this.options.cache).set(key, val);
+        (<CacheOptions>this.options.cache).set(key, val);
     }
 
     invalidateCache() {

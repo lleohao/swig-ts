@@ -1,12 +1,9 @@
-import some from './utils';
+import { some } from './utils';
 
-
-export namespace Lexer {
-    export interface LexerToken {
-        match: string;
-        type: number;
-        length: number;
-    }
+export interface LexerToken {
+    match: string;
+    type: number;
+    length: number;
 }
 
 /**
@@ -16,8 +13,7 @@ export namespace Lexer {
  * @property {number} type Lexer type enum.
  * @property {number} length Length of the original string processed.
  */
-
-export const TYPES = {
+const TYPES = {
     /** Whitesapce */
     WHITESAPCE: 0,
     /** Plain string */
@@ -77,6 +73,7 @@ export const TYPES = {
     /** Unknown type */
     UNKNOWN: 100
 };
+export const types = TYPES;
 
 const rules = [
     {
@@ -248,7 +245,7 @@ const rules = [
 ];
 
 
-function reader(str: string): Lexer.LexerToken {
+function reader(str: string): LexerToken {
     let matched;
 
     some(rules, function (rule: any) {
@@ -289,7 +286,7 @@ function reader(str: string): Lexer.LexerToken {
  * @param str 
  * @private
  */
-export const read = function (str: string): Lexer.LexerToken[] {
+export const read = function (str: string): LexerToken[] {
     let offset = 0,
         tokens = [],
         substr,

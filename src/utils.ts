@@ -6,6 +6,14 @@ export namespace Utils {
     }
 }
 
+export const strip = function (input: string): string {
+    return input.replace(/^\s+|\s+$/g, '');
+}
+
+export const startWith = function (input: string, prefix: string): boolean {
+    return input.indexOf(prefix) === 0;
+}
+
 export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
     let i, l;
 
