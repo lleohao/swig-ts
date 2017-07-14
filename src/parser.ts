@@ -428,10 +428,10 @@ class TokenParser {
             let c = ctx + temp,
                 m = match,
                 build = '';
-            
+
             build = `(typeof ${c} !== "undefined" && ${c} !== null`;
-            utils.each(m, function(v: any, i: any) {
-                if(i === 0) {
+            utils.each(m, function (v: any, i: any) {
+                if (i === 0) {
                     return;
                 }
                 build += ` && ${c}.${v} !== undefiend && ${c}.${v} !== null`;
@@ -588,4 +588,127 @@ export const parse = function (swig: Swig, source: string, opts: SwigOptions, ta
 
         return token;
     }
+
+    /*!
+     * Loop over the source, split via the tag/var/comment regular expression splitter.
+     * Send each chunl to the appropriate parser.
+     */
+    utils.each(source.split(splitter), (chunk) => {
+        let token, lines, stripPrev, prevToken, prevChildToken;
+
+        if (!chunk) {
+            return;
+        }
+
+        // Is a variable?
+        if (!inRaw && utils.startWith(chunk, varOpen) && utils.endsWith(chunk, varClose)) {
+            stripPrev = varStripBefore.test(chunk);
+            stripNext = varStripBefore.test(chunk);
+            token = parseVariable(chunk.replace(varStrip, ''), line);
+            // Is a tag?
+        } else if (utils.startWith(chunk, tagOpen) && utils.endsWith(chunk, tagClose)) {
+            stripPrev = tagStripAfter.test(chunk);
+            stripNext = tagStripBefore.test(chunk);
+            token = parseTag(chunk.replace(tagStrip, ''), line);
+            if (token) {
+                if (token.name === 'extends') {
+                    parent = token.args.join('').replace(/^\'|\'$/g, '').replace(/^\"|\"$/g, '');
+                } else if (token.block && !stack.length) {
+                    blocks[token.args.join('')] = token;
+                }
+            }
+            if (inRaw && !token) {
+                token = chunk;
+            }
+            // Is as content string?
+        } else if (inRaw || (!utils.startWith(chunk, cmtOpen) && !utils.endsWith(chunk, cmtClose))) {
+            token = (stripNext) ? chunk.replace(/^\s*/, '') : chunk;
+            stripNext = false;
+        } else if (utils.startWith(chunk, cmtOpen) && utils.endsWith(chunk, cmtClose)) {
+            return;
+        }
+
+        // Did this tag ask to strip previous whitespace? <code>{%- ... %}</code> or <code>{{- ... }}</code>
+        if (stripPrev && tokens.length) {
+            prevToken = tokens.pop();
+            if (typeof prevToken === 'string') {
+                prevToken = stripPrevToken(prevToken);
+            } else if (prevToken.content && prevToken.content.length) {
+                prevChildToken = stripPrevToken(prevToken.content.pop());
+                prevToken.content.push(prevChildToken);
+            }
+            tokens.push(prevToken);
+        }
+
+        if (!token) {
+            return;
+        }
+
+        // If there's an open item in the stack, add this to its content.
+        if (stack.length) {
+            stack[stack.length - 1].content.push(token);
+        } else {
+            tokens.push(token);
+        }
+
+        // If the token is a tag that requires an end tag, open it on the stack.
+        if (token.name && token.ends) {
+            stack.push(token);
+        }
+
+        lines = chunk.match(/\n/g);
+        line += (lines) ? lines.length : 0;
+    });
+
+    return {
+        name: opts.filename,
+        parent: parent,
+        tokens: tokens,
+        blocks: blocks
+    }
+}
+
+/**
+ * Compile an array of tokens.
+ * @param  {Token[]} template     An array of template tokens.
+ * @param  {Templates[]} parents  Array of parent templates.
+ * @param  {SwigOpts} [options]   Swig options object.
+ * @param  {string} [blockName]   Name of the current block context.
+ * @return {string}               Partial for a compiled JavaScript method that will output a rendered template.
+ */
+export const compile = function (template, parents, options: SwigOptions, blockName: string) {
+    let out = '',
+        tokens = utils.isArray(template) ? template : template.tokens;
+
+    utils.each(tokens, function (token) {
+        let o;
+        if (typeof token === 'string') {
+            out += '_output += "' + token.replace(/\\/g, '\\\\').replace(/\n|\r/g, '\\n').replace(/"/g, '\\"') + '";\n';
+            return;
+        }
+
+        /**
+         * Compile callback for VarToken and TagToken objects.
+         * @callback compile
+         *
+         * @example
+         * exports.compile = function (compiler, args, content, parents, options, blockName) {
+         *   if (args[0] === 'foo') {
+         *     return compiler(content, parents, options, blockName) + '\n';
+         *   }
+         *   return '_output += "fallback";\n';
+         * };
+         *
+         * @param {parserCompiler} compiler
+         * @param {array} [args] Array of parsed arguments on the for the token.
+         * @param {array} [content] Array of content within the token.
+         * @param {array} [parents] Array of parent templates for the current template context.
+         * @param {SwigOpts} [options] Swig Options Object
+         * @param {string} [blockName] Name of the direct block parent, if any.
+         */
+        o = token.compile(compile, token.args ? token.args.slice(0) : [], token.content ? token.content.slice(0) : [], parents, options, blockName);
+        out += o || '';
+    });
+
+    return out;
 }

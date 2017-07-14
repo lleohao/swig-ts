@@ -14,6 +14,17 @@ export const startWith = function (input: string, prefix: string): boolean {
     return input.indexOf(prefix) === 0;
 }
 
+/**
+ * Test if a string ends with a given suffix.
+ * @param  {string} str    String to test against.
+ * @param  {string} suffix Suffix to check for.
+ * @return {boolean}
+ */
+export const endsWith = function (str: string, suffix: string) {
+  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+};
+
+
 export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
     let i, l;
 
