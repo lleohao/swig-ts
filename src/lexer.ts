@@ -3,7 +3,7 @@ import { some } from './utils';
 export interface LexerToken {
     match: string;
     type: number;
-    length: number;
+    length?: number;
 }
 
 /**
@@ -29,7 +29,7 @@ const TYPES = {
     /** Open parentesis */
     PARENOPEN: 6,
     /** Close parentesis */
-    PARECLOSE: 7,
+    PARENCLOSE: 7,
     /** Comma */
     COMMA: 8,
     /** Variable */
@@ -126,7 +126,7 @@ const rules = [
         ]
     },
     {
-        type: TYPES.PARECLOSE,
+        type: TYPES.PARENCLOSE,
         regex: [
             /^\)/
         ]

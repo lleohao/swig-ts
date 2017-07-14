@@ -1,13 +1,12 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es2015",
         "module": "commonjs",
         "declaration": true,
         "declarationDir": "../typings",
         "outDir": "../lib",
-        "strict": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "noImplicitThis": false
+
+        "noImplicitThis": false,
+        "strictNullChecks": false
     }
 }
