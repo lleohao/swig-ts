@@ -2,53 +2,20 @@ import * as utils from './utils';
 import * as lexer from './lexer';
 import { Swig, SwigOptions } from './swig';
 import { LexerToken } from './lexer';
+import { Filters } from './filtter';
 
 const _t = lexer.types;
 const _reserved = ['break', 'case', 'catch', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'finally', 'for', 'function', 'if', 'in', 'instanceof', 'new', 'return', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with'];
 
-/**
- * Filters are simply function that perform transformations on their first input argument.
- * Filter are run at render time, so they may not directly modify the compiled template structure in any way.
- * All of Swig's built-in filters are written in this same way. For more example, reference the 'filters.js' file in Swig's source.
- * 
- * To disabled auto-escaping on a custom filter, simply add a property to the filter method `safe = true;` and the output from this will not be escaped, no metter what the global settings are for Swig.
- *
- *  @typedef {function} Filter
- *
- * @example
- * // This filter will return 'bazbop' if the idx on the input is not 'foobar'
- * swig.setFilter('foobar', function (input, idx) {
- *   return input[idx] === 'foobar' ? input[idx] : 'bazbop';
- * });
- * // myvar = ['foo', 'bar', 'baz', 'bop'];
- * // => {{ myvar|foobar(3) }}
- * // Since myvar[3] !== 'foobar', we render:
- * // => bazbop
- *
- * @example
- * // This filter will disable auto-escaping on its output:
- * function bazbop (input) { return input; }
- * bazbop.safe = true;
- * swig.setFilter('bazbop', bazbop);
- * // => {{ "<p>"|bazbop }}
- * // => <p>
- *
- * @param {*} input Input argument, automatically sent from Swig's built-in parser.
- * @param {...*} [args] All other arguments are defined by the Filter author.
- * @return {*}
- */
-
-export interface Filter extends Function {
-    (input: any, ...arg): any;
-    safe?: boolean;
-}
-
-export interface Filters {
-    [key: string]: Filter;
-}
-
 interface Parsers {
     [key: string]: Function;
+}
+
+export interface ParseToken {
+    name: string;
+    parent: any,
+    tokens: LexerToken[],
+    blocks: any
 }
 
 
@@ -449,7 +416,7 @@ class TokenParser {
     }
 }
 
-export const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: any, filters: Filters) {
+export const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: any, filters: Filters): ParseToken {
     source = source.replace(/\r\n/g, '\n');
     let escape = opts.autoescape,
         tagOpen = (<string[]>opts.tagControls)[0],
@@ -676,7 +643,7 @@ export const parse = function (swig: Swig, source: string, opts: SwigOptions, ta
  * @param  {string} [blockName]   Name of the current block context.
  * @return {string}               Partial for a compiled JavaScript method that will output a rendered template.
  */
-export const compile = function (template, parents, options: SwigOptions, blockName: string) {
+export const compile = function (template, parents, options: SwigOptions, blockName?: string) {
     let out = '',
         tokens = utils.isArray(template) ? template : template.tokens;
 

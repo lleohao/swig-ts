@@ -48,7 +48,7 @@ export namespace TemplateLoader {
      * @return {string}               Template source string.
      */
     export interface load {
-        (identifier: string, cb: (err: Error | null, data: string) => void): string | undefined;
+        (identifier: string, cb?: (err: Error | null, data: string) => void): string | undefined;
     }
 
     export interface templateLoader {

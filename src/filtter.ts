@@ -3,6 +3,47 @@ import { Utils } from './utils';
 import * as dateFormatter from './dateformat';
 
 /**
+ * Filters are simply function that perform transformations on their first input argument.
+ * Filter are run at render time, so they may not directly modify the compiled template structure in any way.
+ * All of Swig's built-in filters are written in this same way. For more example, reference the 'filters.js' file in Swig's source.
+ * 
+ * To disabled auto-escaping on a custom filter, simply add a property to the filter method `safe = true;` and the output from this will not be escaped, no metter what the global settings are for Swig.
+ *
+ *  @typedef {function} Filter
+ *
+ * @example
+ * // This filter will return 'bazbop' if the idx on the input is not 'foobar'
+ * swig.setFilter('foobar', function (input, idx) {
+ *   return input[idx] === 'foobar' ? input[idx] : 'bazbop';
+ * });
+ * // myvar = ['foo', 'bar', 'baz', 'bop'];
+ * // => {{ myvar|foobar(3) }}
+ * // Since myvar[3] !== 'foobar', we render:
+ * // => bazbop
+ *
+ * @example
+ * // This filter will disable auto-escaping on its output:
+ * function bazbop (input) { return input; }
+ * bazbop.safe = true;
+ * swig.setFilter('bazbop', bazbop);
+ * // => {{ "<p>"|bazbop }}
+ * // => <p>
+ *
+ * @param {*} input Input argument, automatically sent from Swig's built-in parser.
+ * @param {...*} [args] All other arguments are defined by the Filter author.
+ * @return {*}
+ */
+
+export interface Filter extends Function {
+    (input: any, ...arg): any;
+    safe?: boolean;
+}
+
+export interface Filters {
+    [key: string]: Filter;
+}
+
+/**
  * Helper method to recursively run a filter across an object/array and apply it to all fo the object/array's values.
  * @param input 
  * @private
@@ -37,7 +78,7 @@ const iterateFilter = function (input: any) {
  * @param  {*}  input
  * @return {*}        Backslash-escaped string.
  */
-export const addslashes = function (input: any) {
+const addslashes = function (input: any) {
     let out = iterateFilter.apply(addslashes, arguments);
     if (out !== undefined) {
         return out;
@@ -55,7 +96,7 @@ export const addslashes = function (input: any) {
  * @param input If given an array or object, each string member will be run through the filter individually.
  * @return Returns the same type as the input.
  */
-export const capitalize = function (input: any) {
+const capitalize = function (input: any) {
     let out = iterateFilter.apply(capitalize, arguments);
     if (out !== undefined) {
         return out;
@@ -64,7 +105,7 @@ export const capitalize = function (input: any) {
     return input.toString().charAt(0).toUpperCase() + input.toString().substr(1).toLowerCase();
 }
 
-export const date = function (input: string | Date, format: string, offset: number, abbr: string) {
+const date = function (input: string | Date, format: string, offset: number, abbr: string) {
     let l = format.length,
         date = new dateFormatter.DateZ(input),
         cur,
@@ -91,11 +132,11 @@ export const date = function (input: string | Date, format: string, offset: numb
     return out;
 }
 
-export const _default = function (input: any, def: any) {
+const _default = function (input: any, def: any) {
     return (typeof input !== 'undefined' && (input || typeof input === 'number')) ? input : def;
 }
 
-export const escape = function (input: any, type: string) {
+const escape = function (input: any, type: string) {
     let out = iterateFilter.apply(escape, arguments),
         inp = input,
         i = 0,
@@ -141,9 +182,9 @@ export const escape = function (input: any, type: string) {
                 .replace(/'/g, '&#39;');
     }
 }
-export const e = escape;
+const e = escape;
 
-export const first = function (input: any) {
+const first = function (input: any) {
     if (typeof input === 'object' && !utils.isArray(input)) {
         let keys = utils.keys(input);
         return input[keys[0]];
@@ -156,11 +197,11 @@ export const first = function (input: any) {
     return input[0];
 }
 
-export const safe = function (input: any) {
+const safe = function (input: any) {
     return input;
 }
 
-export const url_encode = function (input: any) {
+const url_encode = function (input: any) {
     let out = iterateFilter.apply(url_encode, arguments);
 
     if (out !== undefined) {
@@ -170,11 +211,24 @@ export const url_encode = function (input: any) {
     return decodeURIComponent(input);
 }
 
-export const url_decode = function (input: any) {
+const url_decode = function (input: any) {
     let out = iterateFilter.apply(url_decode, arguments);
     if (out !== undefined) {
         return out;
     }
 
     return encodeURIComponent(input);
+}
+
+export default {
+    addslashes: addslashes,
+    capitalize: capitalize,
+    date: date,
+    "default": _default,
+    e: escape,
+    escape: escape,
+    first: first,
+    safe: safe,
+    url_encode: url_encode,
+    url_decode: url_decode
 }

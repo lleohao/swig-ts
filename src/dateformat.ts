@@ -10,7 +10,7 @@ const _days = {
     alt: { '-1': 'Yesterday', 0: 'Today', 1: 'Tomorrow' }
 }
 
-export const tzOffset = 0;
+export var tzOffset = 0;
 export class DateZ implements DateZ {
     private date: Date;
     private dateZ: Date;
