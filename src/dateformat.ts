@@ -1,4 +1,4 @@
-import { each } from './utils';
+import utils from './utils';
 
 const _months = {
     full: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -25,7 +25,7 @@ export class DateZ implements DateZ {
         this.date = this.dateZ = (argument.length > 1) ? new Date(Date.UTC.apply(Date, argument) + (new Date().getTimezoneOffset() * 60 * 1000)) : (argument.length === 1) ? new Date(new Date(argument[0])) : new Date();
         this.timezoneOffset = this.dateZ.getTimezoneOffset();
 
-        each(members.z, (name: string) => {
+        utils.each(members.z, (name: string) => {
             (this as any)[name] = function () {
                 return (this.dateZ as any)[name]();
             }
@@ -34,7 +34,7 @@ export class DateZ implements DateZ {
         /**
          * Default get UTC time
          */
-        each(members['default'], (name: string) => {
+        utils.each(members['default'], (name: string) => {
             (this as any)[name] = function () {
                 return (this.date as any)[name]();
             };

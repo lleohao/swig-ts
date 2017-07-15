@@ -1,5 +1,4 @@
-import * as utils from './utils';
-import { Utils } from './utils';
+import utils, { Object } from './utils';
 import * as dateFormatter from './dateformat';
 
 /**
@@ -49,7 +48,7 @@ export interface Filters {
  * @private
  */
 const iterateFilter = function (input: any) {
-    let out: Utils.Object = {};
+    let out: Object = {};
     let self = this;
 
     if (utils.isArray(input)) {

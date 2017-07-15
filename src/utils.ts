@@ -1,6 +1,5 @@
 const isArray = Array.isArray;
 
-
 export interface Object {
     [key: string]: any;
 }

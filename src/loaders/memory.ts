@@ -1,5 +1,5 @@
 import { dirname, normalize, resolve } from 'path';
-import { throwError } from '../utils';
+import utils from '../utils';
 
 import { TemplateLoader } from './index';
 
@@ -41,7 +41,7 @@ export const memory = (mapping: MemoryInterface, basepath?: string | null) => {
             src = mapping[paths[0]] || mapping[paths[1]];
 
             if (!src) {
-                throwError('Unable to find template "' + pathname + '".');
+                utils.throwError('Unable to find template "' + pathname + '".');
             }
 
             if (cb) {

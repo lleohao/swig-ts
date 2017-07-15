@@ -19,8 +19,6 @@ export interface ParseToken {
     blocks: { [key: string]: any }
 }
 
-
-
 /**
  * Makes a string safe for regular expression.
  * 
@@ -413,6 +411,7 @@ class TokenParser {
             return '(' + checkDot(ctx) + '?' + ctx + match.join('.') + ' : "")';
         }
         result = '(' + checkDot('_ctx.') + ' ? ' + buildDot('_ctx.') + ' : ' + buildDot('') + ')';
+
         return '(' + result + ' !== null ? ' + result + ' : ' + '"" )';
     }
 }
@@ -446,7 +445,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         ),
         line = 1,
         stack: any[] = [],
-        parent = null,
+        parent: string = null,
         tokens = [],
         blocks = {},
         inRaw = false,
@@ -459,10 +458,10 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * @param {number} line The line number that this variable starts on.
      * @return {VarToken}   Parsed variable token object.
      */
-    function parseVariable(str: string, line: number) {
+    function parseVariable(str: string, line: number): { compile: () => string } {
         let tokens = lexer.read(utils.strip(str)),
-            parser,
-            out: string;
+            parser: TokenParser,
+            out;
 
         parser = new TokenParser(tokens, filters, escape, line, opts.filename);
         out = parser.parse().join('');
@@ -472,7 +471,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         }
 
         return {
-            complie: function () {
+            compile: function () {
                 return '_output +=' + out + ';\n';
             }
         };
@@ -549,6 +548,12 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         }
     }
 
+    /**
+     * Strip the whitespace from the previous tokes, if it is a string.
+     * 
+     * @param {*} token     Parsed token.
+     * @returns {object}    If token was a string, trailing whitespace will be stripped.
+     */
     function stripPrevToken(token: any) {
         if (typeof token === 'string') {
             token = token.replace(/\s*$/, '');
@@ -561,7 +566,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * Loop over the source, split via the tag/var/comment regular expression splitter.
      * Send each chunl to the appropriate parser.
      */
-    utils.each(source.split(splitter), (chunk) => {
+    utils.each(source.split(splitter), (chunk: string) => {
         let token, lines, stripPrev, prevToken, prevChildToken;
 
         if (!chunk) {

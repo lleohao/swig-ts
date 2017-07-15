@@ -1,4 +1,4 @@
-import * as utils from './utils';
+import utils from './utils';
 import _filters, { Filters } from './filtter';
 import _tags, { Tags } from './tags';
 import { fs, TemplateLoader } from './loaders';
@@ -228,7 +228,7 @@ export class Swig {
      * 
      * @memberOf Swig
      */
-    constructor(opts?: SwigOptions) {
+    constructor(opts: SwigOptions = {}) {
         validateOptions(opts);
         this.options = utils.extend({}, defaultOptions, opts);
         this.cache = {};
@@ -245,7 +245,7 @@ export class Swig {
      * @returns {object}
      * @memberof Swig
      */
-    private getLocals(options?: SwigOptions): Object {
+    private getLocals(options: SwigOptions = {}): Object {
         if (!options || !options.locals) {
             return this.options.locals;
         }
