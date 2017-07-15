@@ -73,7 +73,6 @@ const TYPES = {
     /** Unknown type */
     UNKNOWN: 100
 };
-export const types = TYPES;
 
 const rules = [
     {
@@ -244,7 +243,13 @@ const rules = [
     }
 ];
 
-
+/**
+ * Return tohe token object for a single chunk of a string.
+ * 
+ * @param {string} str      str String chunk.
+ * @return {LexerToken}     Defined type, potentially stripped or replaced with more suitable content.
+ * @private
+ */
 function reader(str: string): LexerToken {
     let matched;
 
@@ -267,7 +272,7 @@ function reader(str: string): LexerToken {
             };
 
             return true;
-        })
+        });
     });
 
     if (!matched) {
@@ -283,10 +288,12 @@ function reader(str: string): LexerToken {
 
 /**
  * Read a string and break it into separate token types.
- * @param str 
+ * 
+ * @param {string} str  
+ * @return {LexerToken[]}   Array of defined types, potentially stripped or replaced with more suitable content.
  * @private
  */
-export const read = function (str: string): LexerToken[] {
+const read = function (str: string): LexerToken[] {
     let offset = 0,
         tokens = [],
         substr,
@@ -300,4 +307,9 @@ export const read = function (str: string): LexerToken[] {
     }
 
     return tokens;
+}
+
+export default {
+    types: TYPES,
+    read: read
 }

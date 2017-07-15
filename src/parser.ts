@@ -1,5 +1,5 @@
 import * as utils from './utils';
-import * as lexer from './lexer';
+import lexer from './lexer';
 import { Swig, SwigOptions } from './swig';
 import { LexerToken } from './lexer';
 import { Filters } from './filtter';
