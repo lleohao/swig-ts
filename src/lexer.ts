@@ -1,4 +1,4 @@
-import { some } from './utils';
+import utils from './utils';
 
 export interface LexerToken {
     match: string;
@@ -253,8 +253,8 @@ const rules = [
 function reader(str: string): LexerToken {
     let matched;
 
-    some(rules, function (rule: any) {
-        return some(rule.regex, function (regex: RegExp) {
+    utils.some(rules, function (rule: any) {
+        return utils.some(rule.regex, function (regex: RegExp) {
             let match = str.match(regex),
                 normalized;
 

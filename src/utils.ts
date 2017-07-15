@@ -1,16 +1,15 @@
-export const isArray = Array.isArray;
+const isArray = Array.isArray;
 
-export namespace Utils {
-    export interface Object {
-        [key: string]: any;
-    }
+
+export interface Object {
+    [key: string]: any;
 }
 
-export const strip = function (input: string): string {
+const strip = function (input: string): string {
     return input.replace(/^\s+|\s+$/g, '');
 }
 
-export const startWith = function (input: string, prefix: string): boolean {
+const startWith = function (input: string, prefix: string): boolean {
     return input.indexOf(prefix) === 0;
 }
 
@@ -20,12 +19,12 @@ export const startWith = function (input: string, prefix: string): boolean {
  * @param  {string} suffix Suffix to check for.
  * @return {boolean}
  */
-export const endsWith = function (str: string, suffix: string) {
+const endsWith = function (str: string, suffix: string) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 };
 
 
-export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
+const each = function <T extends Object>(obj: T, fn: Function): T {
     let i, l;
 
     if (isArray(obj)) {
@@ -49,7 +48,7 @@ export const each = function <T extends Utils.Object>(obj: T, fn: Function): T {
     return obj;
 }
 
-export const some = function <T extends Utils.Object>(obj: T, fn: Function): boolean {
+const some = function <T extends Object>(obj: T, fn: Function): boolean {
     let i = 0,
         result,
         l;
@@ -72,8 +71,8 @@ export const some = function <T extends Utils.Object>(obj: T, fn: Function): boo
     return !!result;
 }
 
-export const map = function <T extends Utils.Object>(obj: T, fn: Function): Utils.Object {
-    let result: Utils.Object = {};
+const map = function <T extends Object>(obj: T, fn: Function): Object {
+    let result: Object = {};
 
     if (isArray(obj)) {
         for (let i = 0, l = obj.length; i < l; i += 1) {
@@ -90,7 +89,7 @@ export const map = function <T extends Utils.Object>(obj: T, fn: Function): Util
     return result;
 }
 
-export const extend = (...args: any[]): Object => {
+const extend = (...args: any[]): Object => {
     let target = args[0];
     let objs = (args.length > 1) ? Array.prototype.slice.call(args, 1) : [];
 
@@ -106,7 +105,7 @@ export const extend = (...args: any[]): Object => {
     return target;
 }
 
-export const keys = function (obj: any) {
+const keys = function (obj: any) {
     if (!obj) {
         return [];
     }
@@ -128,7 +127,7 @@ export const keys = function (obj: any) {
  * @param file Template file the error occured in.
  * @throws No seriously, the point is to throw an error.
  */
-export const throwError = function (message: string, line?: string | number, file?: string): Error {
+const throwError = function (message: string, line?: string | number, file?: string): Error {
     if (line) {
         message += ' on line ' + line;
     }
@@ -138,4 +137,18 @@ export const throwError = function (message: string, line?: string | number, fil
     }
 
     throw new Error(message + '.');
+}
+
+
+export default {
+    isArray: isArray,
+    each: each,
+    some: some,
+    map: map,
+    keys: keys,
+    extend: extend,
+    strip: strip,
+    startWith: startWith,
+    endsWith: endsWith,
+    throwError: throwError
 }

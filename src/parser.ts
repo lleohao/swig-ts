@@ -1,4 +1,4 @@
-import * as utils from './utils';
+import utils from './utils';
 import lexer from './lexer';
 import { Swig, SwigOptions } from './swig';
 import { LexerToken } from './lexer';
