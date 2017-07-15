@@ -1,17 +1,23 @@
 import * as utils from './utils';
 import _filters, { Filters } from './filtter';
+import _tags, { Tags } from './tags';
 import { fs, TemplateLoader } from './loaders';
 import * as dateformatter from './dateformat';
-import * as parser from './parser';
+import parser, { ParseToken } from './parser';
 import * as loaders from './loaders';
+import { LexerToken } from './lexer';
 
 export interface obj {
     [key: string]: any;
 }
 
+export interface CompiledTemplate {
+    (locals?: obj): string;
+}
+
 export interface CacheOptions {
-    get: (key: string) => Function;
-    set: (key: string, val: Function) => boolean;
+    get: (key: string) => CompiledTemplate;
+    set: (key: string, val: CompiledTemplate) => boolean;
 }
 
 /**
@@ -211,10 +217,10 @@ exports.setDefaultTZOffset = function (offset) {
  */
 export class Swig {
     options: SwigOptions;
-    cache: { [key: string]: Function };
+    cache: { [key: string]: CompiledTemplate };
     extensions: {};
     filters: Filters;
-    tags: { [key: string]: any };
+    tags: Tags;
 
     /**
      * Creates an instance of Swig.
@@ -228,7 +234,7 @@ export class Swig {
         this.cache = {};
         this.extensions = {};
         this.filters = _filters;
-        this.tags = {};
+        this.tags = _tags;
     }
 
     /**
@@ -290,7 +296,7 @@ export class Swig {
      * @returns 
      * @memberof Swig
      */
-    private cacheSet(key: string, options: Object, val: Function) {
+    private cacheSet(key: string, options: SwigOptions, val: CompiledTemplate) {
         if (this.shouldCache(options)) {
             return;
         }
@@ -356,7 +362,7 @@ export class Swig {
             parse: parse,
             compile: compile,
             ends: ends,
-            blockLevel: blockLevel
+            block: blockLevel
         }
     }
 
@@ -385,7 +391,7 @@ export class Swig {
      * @param {SwigOptions} [options={}]    Swig options object.
      * @memberof Swig
      */
-    parse(source: string, options: SwigOptions = {}) {
+    private parse(source: string, options: SwigOptions = {}): ParseToken {
         validateOptions(options);
         let locals = this.getLocals(options),
             opts = {},
@@ -410,7 +416,7 @@ export class Swig {
      * @param {SwigOptions} [options={}]    Swig optiosn object.
      * @memberof Swig
      */
-    parseFile(pathname: string, options: SwigOptions = {}) {
+    private parseFile(pathname: string, options: SwigOptions = {}) {
         let src;
 
         pathname = this.options.loader.reslove(pathname, options.resolveFrom);
@@ -424,11 +430,81 @@ export class Swig {
         return this.parse(src, options);
     }
 
-    private getParent(tokens: any, options: SwigOptions) {
-        return [];
+    /**
+     * Re-Map blocks within a list of tokens to the templatae's block objecs.
+     * @param blocks 
+     * @param tokens 
+     */
+    private remapBlocks(blocks: {}, tokens: ParseToken): LexerToken[] {
+        return <LexerToken[]>utils.map(tokens, (token) => {
+            let args = token.args ? token.args.join('') : '';
+            if (token.name === 'block' && blocks[args]) {
+                token = blocks[args];
+            }
+            if (token.content && token.content.length) {
+                token.content = this.remapBlocks(blocks, token.content);
+            }
+            return token;
+        })
     }
 
+    /**
+     * Import block-level tags to the token list that are not actual block tags.
+     * @param {array} blocks List of block-level tags.
+     * @param {array} tokens List of tokens to render.
+     */
+    private importNonBlocks(blocks, tokens) {
+        let temp = [];
+        utils.each(blocks, (block) => {
+            temp.push(block);
+        });
+        utils.each(temp.reverse(), (block) => {
+            tokens.unshift(block);
+        });
+    }
 
+    /**
+     * Rrecursively compile and get parents of given parsed token object.
+     * 
+     * @private
+     * @param {object} tokens               Parsed tokens from templates.
+     * @param {SwigOptions} [options={}]    Swign options object.
+     * @return {object}                     Parsed tokens from templates.
+     * @memberof Swig
+     */
+    private getParents(tokens, options: SwigOptions = {}) {
+        let parentName = tokens.parent,
+            parentFiles = [],
+            parents = [],
+            parentFile,
+            parent,
+            l;
+
+        while (parentName) {
+            if (!options.filename) {
+                throw new Error(`Cannot extend "${parentName}" because current template has no filename`);
+            }
+
+            parentFile = parentFile || options.filanema;
+            parentFile = this.options.loader.reslove(parentName, parentFile);
+            parent = this.cacheGet(parentFile, options) || this.parseFile(parentFile, utils.extend({}, options, { filanema: parentFile }));
+            parentName = parent.parent;
+
+            if (parentFile.indexOf(parentFile) !== -1) {
+                throw new Error(`Illegal circular ectends of "${parentFile}".`);
+            }
+            parentFiles.push(parentFile);
+
+            parents.push(parent);
+        }
+
+        for (l = parents.length - 2; l >= 0; l -= 1) {
+            parents[l].tokens = this.remapBlocks(parents[l].blocks, parents[l + 1].tokens);
+            this.importNonBlocks(parents[l].blocks, parents[l].tokens);
+        }
+
+        return parents;
+    }
 
     /**
      * Pre-compile a source string to a cache-able template function.
@@ -451,14 +527,15 @@ export class Swig {
      * @param {SwigOptions} options 
      * @memberof Swig
      */
-    preCompile(source: string, options: SwigOptions) {
+    preCompile(source: string, options: SwigOptions): { tpl: Function, tokens: ParseToken } {
         let tokens = this.parse(source, options),
-            parents = this.getParent(tokens, options),
+            parents = this.getParents(tokens, options),
             tpl,
             err;
 
         if (parents.length) {
-
+            tokens.tokens = this.remapBlocks(tokens.blocks, parents[0].tokens);
+            this.importNonBlocks(tokens.blocks, tokens.tokens);
         }
 
         try {
@@ -559,7 +636,7 @@ export class Swig {
      * @param  {SwigOpts} [options={}] Swig options object.
      * @return {function}         Renderable function with keys for parent, blocks, and tokens.
      */
-    compile(source: string, optiosn: SwigOptions = {}): Function {
+    compile(source: string, optiosn: SwigOptions = {}): CompiledTemplate {
         let key = optiosn ? optiosn.filename : null,
             cached = key ? this.cacheGet(key) : null,
             context,
@@ -658,13 +735,13 @@ export class Swig {
      * @param  {string} [filepath]  Filename used for caching the template.
      * @return {string}             Rendered output.
      */
-    run(tpl, locals, filepath) {
-        var context = this.getLocals({ locals: locals });
-        if (filepath) {
-            this.cacheSet(filepath, {}, tpl);
-        }
-        return tpl(self, context, this.filters, utils, efn);
-    };
+    // run(tpl, locals, filepath) {
+    //     var context = this.getLocals({ locals: locals });
+    //     if (filepath) {
+    //         this.cacheSet(filepath, {}, tpl);
+    //     }
+    //     return tpl(self, context, this.filters, utils, efn);
+    // };
 };
 
 defaultInstance = new Swig();
@@ -672,13 +749,11 @@ export default {
     setFilter: defaultInstance.setFilter,
     setTag: defaultInstance.setTag,
     setExtension: defaultInstance.setExtension,
-    parseFile: defaultInstance.parseFile,
     preCompile: defaultInstance.preCompile,
     compile: defaultInstance.compile,
     compileFile: defaultInstance.compileFile,
     render: defaultInstance.render,
     renderFile: defaultInstance.renderFile,
-    run: defaultInstance.run,
     invalidateCache: defaultInstance.invalidateCache,
     loaders: loaders
 }

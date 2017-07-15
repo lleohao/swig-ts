@@ -3,6 +3,7 @@ import * as lexer from './lexer';
 import { Swig, SwigOptions } from './swig';
 import { LexerToken } from './lexer';
 import { Filters } from './filtter';
+import { Tags } from './tags';
 
 const _t = lexer.types;
 const _reserved = ['break', 'case', 'catch', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'finally', 'for', 'function', 'if', 'in', 'instanceof', 'new', 'return', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with'];
@@ -13,9 +14,9 @@ interface Parsers {
 
 export interface ParseToken {
     name: string;
-    parent: any,
+    parent: string,
     tokens: LexerToken[],
-    blocks: any
+    blocks: { [key: string]: any }
 }
 
 
@@ -416,7 +417,7 @@ class TokenParser {
     }
 }
 
-export const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: any, filters: Filters): ParseToken {
+const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tags, filters: Filters): ParseToken {
     source = source.replace(/\r\n/g, '\n');
     let escape = opts.autoescape,
         tagOpen = (<string[]>opts.tagControls)[0],
@@ -643,7 +644,7 @@ export const parse = function (swig: Swig, source: string, opts: SwigOptions, ta
  * @param  {string} [blockName]   Name of the current block context.
  * @return {string}               Partial for a compiled JavaScript method that will output a rendered template.
  */
-export const compile = function (template, parents, options: SwigOptions, blockName?: string) {
+const compile = function (template, parents, options: SwigOptions, blockName?: string) {
     let out = '',
         tokens = utils.isArray(template) ? template : template.tokens;
 
@@ -678,4 +679,9 @@ export const compile = function (template, parents, options: SwigOptions, blockN
     });
 
     return out;
+}
+
+export default {
+    parse: parse,
+    compile: compile
 }
