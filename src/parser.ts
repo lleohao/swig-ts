@@ -36,14 +36,14 @@ function escapeRegExp(str: string) {
  * @class TokenParser
  */
 class TokenParser {
-    out: string[];
-    state: any[];
-    filterApplyIdx: number[];
+    out: string[] = [];
+    state: any[] = [];
+    filterApplyIdx: number[] = [];
     filename: string;
     line: number;
     filters: Filters;
     escape: boolean;
-    private parsers: Parsers;
+    private parsers: Parsers = {};
     private tokens: LexerToken[];
     private isLast: boolean = false;
     private prevToken: LexerToken;

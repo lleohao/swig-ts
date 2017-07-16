@@ -746,14 +746,6 @@ export class Swig {
 
 defaultInstance = new Swig();
 export default {
-    setFilter: defaultInstance.setFilter,
-    setTag: defaultInstance.setTag,
-    setExtension: defaultInstance.setExtension,
-    preCompile: defaultInstance.preCompile,
-    compile: defaultInstance.compile,
-    compileFile: defaultInstance.compileFile,
-    render: defaultInstance.render,
-    renderFile: defaultInstance.renderFile,
-    invalidateCache: defaultInstance.invalidateCache,
-    loaders: loaders
+    swig: defaultInstance,
+    setDefaults: setDefaults
 }

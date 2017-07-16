@@ -9,14 +9,14 @@ export interface LexerToken {
 /**
  * A lexer token.
  * @typedef {object} LexerToken
- * @property {string} match The string that was matched.
- * @property {number} type Lexer type enum.
- * @property {number} length Length of the original string processed.
+ * @property {string} match     The string that was matched.
+ * @property {number} type      Lexer type enum.
+ * @property {number} length    Length of the original string processed.
  */
 const TYPES = {
     /** Whitesapce */
     WHITESAPCE: 0,
-    /** Plain string */
+    /** Plain string 纯文字 */
     STRING: 1,
     /** Variable filter */
     FILTER: 2,
@@ -26,21 +26,21 @@ const TYPES = {
     FUNCTION: 4,
     /** Function with no arguments */
     FUNCTIONEMPTY: 5,
-    /** Open parentesis */
+    /** Open parentesis 括号开始 */
     PARENOPEN: 6,
-    /** Close parentesis */
+    /** Close parentesis 括号结束 */
     PARENCLOSE: 7,
-    /** Comma */
+    /** Comma 逗号 */
     COMMA: 8,
-    /** Variable */
+    /** Variable 变量 */
     VAR: 9,
     /** Number */
     NUMBER: 10,
     /** Math operator */
     OPERATOR: 11,
-    /** Open square bracket */
+    /** Open square bracket 方括号开始 */
     BRACKETOPEN: 12,
-    /** Close square bracket */
+    /** Close square bracket 方括号结束 */
     BRACKETCLOSE: 13,
     /** Key on an object using dot-notation */
     DOTKEY: 14,
@@ -49,15 +49,15 @@ const TYPES = {
     /** End of an array
      * Currently unused
     ARRAYCLOSE: 16, */
-    /** Open curly brace */
+    /** Open curly brace 花括号开始 */
     CURLYOPEN: 17,
-    /** Close curly brace */
+    /** Close curly brace 花括号结束 */
     CURLYCLOSE: 18,
-    /** Colon (:) */
+    /** Colon (:) 冒号 */
     COLON: 19,
-    /** Javascript-valid comparator */
+    /** Javascript-valid comparator 比较器 */
     COMPARATOR: 20,
-    /** Boolean logic */
+    /** Boolean logic 布尔运算符 */
     LOGIC: 21,
     /** Boolean logic "not" */
     NOT: 22,
@@ -188,7 +188,7 @@ const rules = [
     {
         type: TYPES.VAR,
         regex: [
-            /^[a-zA-Z_$]\w*((\.\$?\w*)+)>/,
+            /^[a-zA-Z_$]\w*((\.\$?\w*)+)?/,
             /^[a-zA-Z_$]\w*/
         ]
     },
@@ -207,7 +207,7 @@ const rules = [
     {
         type: TYPES.CURLYOPEN,
         regex: [
-
+            /^\{/
         ]
     },
     {
