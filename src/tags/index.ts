@@ -1,4 +1,8 @@
 import raw from './raw';
+import _if from './if';
+import elseif from './esleif';
+import _else from './else';
+import block from './block';
 
 export interface TagToken {
     compile: Function;
@@ -12,5 +16,10 @@ export interface Tags {
 }
 
 export default {
-    raw: raw
+    raw: raw,
+    "if": _if,
+    "else": _else,
+    elseif: elseif,
+    elif: elseif,
+    block: block
 }

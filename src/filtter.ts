@@ -1,4 +1,4 @@
-import utils, { Object } from './utils';
+import utils from './utils';
 import * as dateFormatter from './dateformat';
 
 /**

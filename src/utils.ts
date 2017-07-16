@@ -24,7 +24,7 @@ const endsWith = function (str: string, suffix: string) {
 };
 
 
-const each = function <T extends Object>(obj: T, fn: Function): T {
+const each = function (obj: Enumerable, fn: Function) {
     let i, l;
 
     if (isArray(obj)) {
@@ -95,7 +95,7 @@ const map = function (obj: Enumerable, fn: Function) {
     return result;
 }
 
-const extend = (...args: any[]): Object => {
+const extend = function (...args: any[]) {
     let target = args[0];
     let objs = (args.length > 1) ? Array.prototype.slice.call(args, 1) : [];
 
