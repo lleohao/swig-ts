@@ -1,7 +1,8 @@
 const isArray = Array.isArray;
 
-export interface Object {
+export interface Enumerable {
     [key: string]: any;
+    [kye: number]: any;
 }
 
 const strip = function (input: string): string {
@@ -47,13 +48,19 @@ const each = function <T extends Object>(obj: T, fn: Function): T {
     return obj;
 }
 
-const some = function <T extends Object>(obj: T, fn: Function): boolean {
+/**
+ * Test ig an item in an enumerable matches your conditions.
+ * 
+ * @param {Enumerable}    obj     Enumerable object.
+ * @param {Function }       fn      Executed for each item. Return if you condition is met. 
+ */
+const some = function (obj: Enumerable, fn: Function): boolean {
     let i = 0,
         result,
         l;
 
     if (isArray(obj)) {
-        l = obj.lengthl
+        l = obj.length;
         for (i; i < l; i += 1) {
             result = fn(obj[i], i, obj);
             if (result) {
@@ -70,8 +77,8 @@ const some = function <T extends Object>(obj: T, fn: Function): boolean {
     return !!result;
 }
 
-const map = function <T extends Object>(obj: T, fn: Function): Object {
-    let result: Object = {};
+const map = function (obj: Enumerable, fn: Function) {
+    let result = [];
 
     if (isArray(obj)) {
         for (let i = 0, l = obj.length; i < l; i += 1) {

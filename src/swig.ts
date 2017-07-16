@@ -540,11 +540,10 @@ export class Swig {
 
         try {
             tpl = new Function('_swig', '_ctx', '_filters', '_utils', '_fn',
-                '   var _ext = _swig.extensions,\n' +
-                '       _output = "";\n' +
+                '  var _ext = _swig.extensions,\n' +
+                '    _output = "";\n' +
                 parser.compile(tokens, parents, options) + '\n' +
-                '   return _output;\n' +
-                ')'
+                '  return _output;\n'
             );
         } catch (error) {
             utils.throwError(error, null, options.filename);
@@ -639,6 +638,7 @@ export class Swig {
     compile(source: string, optiosn: SwigOptions = {}): CompiledTemplate {
         let key = optiosn ? optiosn.filename : null,
             cached = key ? this.cacheGet(key) : null,
+            filters = this.filters,
             context,
             contextLength,
             pre;
@@ -663,7 +663,7 @@ export class Swig {
                 lcls = {};
             }
 
-            return pre.tpl(this, lcls, this.filters, utils, efn);
+            return pre.tpl(this, lcls, filters, utils, efn);
         }
 
         utils.extend(compiled, pre.tokes);
@@ -672,7 +672,7 @@ export class Swig {
             this.cacheSet(key, optiosn, compiled);
         }
 
-        return compiled;
+        return compiled.bind(this);
     }
 
 

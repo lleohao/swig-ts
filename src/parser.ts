@@ -196,7 +196,7 @@ class TokenParser {
                 }
                 this.escape = this.filters[match].safe ? false : this.escape;
                 this.out.splice(this.filterApplyIdx[this.filterApplyIdx.length - 1], 0, '_filters["' + match + '"](');
-                this.state.push(')');
+                this.out.push(')');
                 break;
 
             case _t.FUNCTION:
@@ -361,9 +361,9 @@ class TokenParser {
      * @param {number[]}    lastState   Lexer tokemn type state.
      */
     parseVar(token: LexerToken, match: string, lastState: number) {
-        const matchArr = match.split(',');
+        const matchArr = match.split('.');
 
-        if (_reserved.indexOf[matchArr[0]] !== -1) {
+        if (_reserved.indexOf(matchArr[0]) !== -1) {
             utils.throwError(`Reserved keyword "${matchArr[0]}" attempted to be used as a variable`, this.line, this.filename);
         }
 
