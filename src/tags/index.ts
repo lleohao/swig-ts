@@ -1,14 +1,18 @@
-import raw from './raw';
-import _if from './if';
-import elseif from './esleif';
-import _else from './else';
-import block from './block';
 import autoescape from './autoescape';
+import block from './block';
+import _else from './else';
+import elseif from './esleif';
 import _extends from './extends';
 import filter from './filter';
 import _for from './for';
+import _if from './if';
 import _import from './import';
 import include from './include';
+import macro from './macro';
+import parent from './parent';
+import raw from './raw';
+import set from './set';
+import spaceless from './spaceless';
 
 import { SwigOptions, Swig } from '../swig';
 import { TokenParser } from '../parser';
@@ -53,16 +57,20 @@ export interface Tags {
 }
 
 export default {
-    raw: raw,
-    "if": _if,
+    autoescape: autoescape,
+    block: block,
     "else": _else,
     elseif: elseif,
     elif: elseif,
-    block: block,
-    autoescape: autoescape,
     "extends": _extends,
     filter: filter,
     "for": _for,
+    "if": _if,
     "import": _import,
-    include: include
+    include: include,
+    macro: macro,
+    parent: parent,
+    raw: raw,
+    set: set,
+    spaceless: spaceless
 }
