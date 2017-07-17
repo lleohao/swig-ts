@@ -1,3 +1,4 @@
+import { CompileFunction, ParseFunction } from './index';
 /**
  * Used within an <code data-language="swig">{% if %}</code> tag, the code block following this tag up until <code data-language="swig">{% endif %}</code> will be rendered if the <i>if</i> statement returns false.
  *
@@ -12,11 +13,11 @@
  * // => statement2
  *
  */
-const compile = function () {
+const compile: CompileFunction = function () {
     return `} else {\n`;
 }
 
-const parse = function (str, line, parser, types, stack) {
+const parse: ParseFunction = function (str, line, parser, types, stack) {
     parser.on('*', function (token) {
         throw new Error('"else" tag does not accept any tokens. Found "' + token.match + '" on line ' + line + '.');
     });

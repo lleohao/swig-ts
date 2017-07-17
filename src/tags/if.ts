@@ -1,4 +1,4 @@
-
+import { CompileFunction, ParseFunction } from './index';
 /**
  * Used to create conditional statements in templates. Accepts most JavaScript valid comparisons.
  *
@@ -41,13 +41,13 @@
  * @param {...mixed} conditional Conditional statement that returns a truthy or falsy value.
  */
 
-const compile = function (compiler, args, content, parents, options, blockName) {
+const compile: CompileFunction = function (compiler, args, content, parents, options, blockName) {
     return `if ( ${args.join(' ')} ) {
             ${compiler(content, parents, options, blockName)}
         }`;
 }
 
-const parse = function (str, line, parser, types) {
+const parse: ParseFunction = function (str, line, parser, types) {
     if (typeof str === 'undefined') {
         throw new Error('No conditional statement provided on line ' + line + '.');
     }

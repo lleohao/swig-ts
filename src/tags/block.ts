@@ -1,3 +1,4 @@
+import { CompileFunction, ParseFunction } from './index';
 /**
  * Defines a block in a template that can be overridden by a template extending this one and/or will override the current template's parent template block of the same name.
  * 
@@ -8,11 +9,11 @@
  * 
  * @param {literal}  name   Name of the block for use in parent and extended templates.
  */
-const compile = function (compiler, args, content, parents, options) {
+const compile: CompileFunction = function (compiler, args, content, parents, options) {
     return compiler(content, parents, options, args.join(''));
 };
 
-const parse = function (str, line, parser) {
+const parse: ParseFunction = function (str, line, parser) {
     parser.on('*', function (token) {
         this.out.push(token.match);
     })

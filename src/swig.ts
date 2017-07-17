@@ -1,6 +1,6 @@
 import utils from './utils';
-import _filters, { Filters } from './filtter';
-import _tags, { Tags } from './tags';
+import _filters, { Filters } from './filters';
+import tags, { Tags, CompileFunction, ParseFunction } from './tags';
 import { fs, TemplateLoader } from './loaders';
 import * as dateformatter from './dateformat';
 import parser, { ParseToken } from './parser';
@@ -234,7 +234,7 @@ export class Swig {
         this.cache = {};
         this.extensions = {};
         this.filters = _filters;
-        this.tags = _tags;
+        this.tags = tags;
     }
 
     /**
@@ -351,13 +351,13 @@ export class Swig {
      * // => Tacos tacos tacos tacos.
      * 
      * @param {string} name                 Tag name. 
-     * @param {Function} parse              Method for parsing tokens.
-     * @param {Function} compile            Method for compiling renderable output.
+     * @param {ParseFunction} parse              Method for parsing tokens.
+     * @param {CompileFunction} compile            Method for compiling renderable output.
      * @param {boolean} [ends=false]        Whether or no this tag requires an end tag.
      * @param {boolean} [blockLevel=false]  If false, this tag will not be compiled outside of block tag when extending a parent template.
      * @memberof Swig
      */
-    setTag(name: string, parse: Function, compile: Function, ends: boolean = false, blockLevel: boolean = false) {
+    setTag(name: string, parse: ParseFunction, compile: CompileFunction, ends: boolean = false, blockLevel: boolean = false) {
         this.tags[name] = {
             parse: parse,
             compile: compile,

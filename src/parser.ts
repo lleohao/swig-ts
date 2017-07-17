@@ -2,7 +2,7 @@ import utils from './utils';
 import lexer from './lexer';
 import { Swig, SwigOptions } from './swig';
 import { LexerToken } from './lexer';
-import { Filters } from './filtter';
+import { Filters } from './filters';
 import { Tags } from './tags';
 
 const _t = lexer.types;
@@ -35,7 +35,7 @@ function escapeRegExp(str: string) {
  * 
  * @class TokenParser
  */
-class TokenParser {
+export class TokenParser {
     out: string[] = [];
     state: any[] = [];
     filterApplyIdx: number[] = [];
@@ -123,7 +123,7 @@ class TokenParser {
      * @param {Function}    fn      Callbacak function. Return true to continue executing the default parsing function.
      * @memberof TokenParser
      */
-    on(type: number, fn: Function) {
+    on(type: number | '*', fn: Function) {
         this.parsers[type] = fn;
     }
 
