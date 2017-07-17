@@ -13,65 +13,65 @@ export interface LexerToken {
  * @property {number} type      Lexer type enum.
  * @property {number} length    Length of the original string processed.
  */
-const TYPES = {
+export enum TYPES {
     /** Whitesapce */
-    WHITESAPCE: 0,
+    WHITESAPCE = 0,
     /** Plain string 纯文字 */
-    STRING: 1,
+    STRING = 1,
     /** Variable filter */
-    FILTER: 2,
+    FILTER = 2,
     /** Empty variable filter */
-    FILTEREMPTY: 3,
+    FILTEREMPTY = 3,
     /** Function */
-    FUNCTION: 4,
+    FUNCTION = 4,
     /** Function with no arguments */
-    FUNCTIONEMPTY: 5,
+    FUNCTIONEMPTY = 5,
     /** Open parentesis 括号开始 */
-    PARENOPEN: 6,
+    PARENOPEN = 6,
     /** Close parentesis 括号结束 */
-    PARENCLOSE: 7,
+    PARENCLOSE = 7,
     /** Comma 逗号 */
-    COMMA: 8,
+    COMMA = 8,
     /** Variable 变量 */
-    VAR: 9,
+    VAR = 9,
     /** Number */
-    NUMBER: 10,
+    NUMBER = 10,
     /** Math operator */
-    OPERATOR: 11,
+    OPERATOR = 11,
     /** Open square bracket 方括号开始 */
-    BRACKETOPEN: 12,
+    BRACKETOPEN = 12,
     /** Close square bracket 方括号结束 */
-    BRACKETCLOSE: 13,
+    BRACKETCLOSE = 13,
     /** Key on an object using dot-notation */
-    DOTKEY: 14,
+    DOTKEY = 14,
     /** Start of an array */
-    ARRAYOPEN: 15,
+    ARRAYOPEN = 15,
     /** End of an array
      * Currently unused
-    ARRAYCLOSE: 16, */
+    ARRAYCLOSE= 16, */
     /** Open curly brace 花括号开始 */
-    CURLYOPEN: 17,
+    CURLYOPEN = 17,
     /** Close curly brace 花括号结束 */
-    CURLYCLOSE: 18,
-    /** Colon (:) 冒号 */
-    COLON: 19,
+    CURLYCLOSE = 18,
+    /** Colon (=) 冒号 */
+    COLON = 19,
     /** Javascript-valid comparator 比较器 */
-    COMPARATOR: 20,
+    COMPARATOR = 20,
     /** Boolean logic 布尔运算符 */
-    LOGIC: 21,
+    LOGIC = 21,
     /** Boolean logic "not" */
-    NOT: 22,
+    NOT = 22,
     /** true or false */
-    BOOL: 23,
+    BOOL = 23,
     /** Varsiable assignment */
-    ASSIGNMENT: 24,
+    ASSIGNMENT = 24,
     /** Start of a method */
-    METHODOPEN: 25,
+    METHODOPEN = 25,
     /** End of a method
      * Currently unused
-    METHODEND: 26, */
+    METHODEND= 26, */
     /** Unknown type */
-    UNKNOWN: 100
+    UNKNOWN = 100
 };
 
 const rules = [
@@ -310,6 +310,5 @@ const read = function (str: string): LexerToken[] {
 }
 
 export default {
-    types: TYPES,
     read: read
 }

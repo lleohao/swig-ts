@@ -5,9 +5,12 @@ import _else from './else';
 import block from './block';
 import autoescape from './autoescape';
 import _extends from './extends';
+import filter from './filter';
+import _for from './for';
 
 import { SwigOptions } from '../swig';
 import { TokenParser } from '../parser';
+
 
 export interface TagToken {
     compile: CompileFunction;
@@ -40,7 +43,7 @@ export interface CompileFunction {
 }
 
 export interface ParseFunction {
-    (str: string, line: number, parser: TokenParser, types: any, stack: any[], opts?: SwigOptions): boolean;
+    (str: string, line: number, parser: TokenParser, stack?: any[], opts?: SwigOptions): boolean;
 }
 
 export interface Tags {
@@ -55,5 +58,7 @@ export default {
     elif: elseif,
     block: block,
     autoescape: autoescape,
-    "extends": _extends
+    "extends": _extends,
+    filter: filter,
+    "for": _for
 }

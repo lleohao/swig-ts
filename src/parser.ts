@@ -1,11 +1,11 @@
 import utils from './utils';
-import lexer from './lexer';
+import lexer, { TYPES } from './lexer';
 import { Swig, SwigOptions } from './swig';
 import { LexerToken } from './lexer';
 import { Filters } from './filters';
 import { Tags } from './tags';
 
-const _t = lexer.types;
+const _t = TYPES;
 const _reserved = ['break', 'case', 'catch', 'continue', 'debugger', 'default', 'delete', 'do', 'else', 'finally', 'for', 'function', 'if', 'in', 'instanceof', 'new', 'return', 'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while', 'with'];
 
 interface Parsers {
@@ -123,7 +123,7 @@ export class TokenParser {
      * @param {Function}    fn      Callbacak function. Return true to continue executing the default parsing function.
      * @memberof TokenParser
      */
-    on(type: number | '*', fn: Function) {
+    on(type: number | '*', fn: (token: LexerToken) => void) {
         this.parsers[type] = fn;
     }
 
@@ -522,7 +522,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         parser = new TokenParser(tokens, filters, false, line, opts.filename);
         tag = tags[tagName];
 
-        if (!tag.parse(chunks[1], line, parser, _t, stack, opts, swig)) {
+        if (!tag.parse(chunks[1], line, parser, stack, opts, swig)) {
             utils.throwError('Unexpected tag "' + tagName + '"', line, opts.filename);
         }
 

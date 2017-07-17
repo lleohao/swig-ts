@@ -1,4 +1,5 @@
 import { CompileFunction, ParseFunction } from './index';
+import { TYPES as types } from '../lexer';
 import filters from '../filters';
 
 
@@ -33,7 +34,41 @@ const compile: CompileFunction = function (compiler, args, contents, parents, op
     return `_output += _filters["${filters}"](${val + _argsStr});`;
 }
 
-const parse: ParseFunction = function (str, line, parser, types, stack, opts) {
+const parse: ParseFunction = function (str, line, parser, stack, opts) {
+    let filter;
+
+    function check(filter) {
+        if (!(filters as Object).hasOwnProperty(filter)) {
+            throw new Error('Filter "' + filter + '" does not exist on line ' + line + '.');
+        }
+    }
+
+    parser.on(types.FUNCTION, function (token) {
+        if (!filter) {
+            filter = token.match.replace(/\($/, '');
+            check(filter);
+            this.out.push(token.match);
+            this.state.push(token.type);
+            return;
+        }
+        return true;
+    });
+
+    parser.on(types.VAR, function (token) {
+        if (!filter) {
+            filter = token.match;
+            check(filter);
+            this.out.push(filter);
+            return;
+        }
+        return true;
+    });
 
     return true;
+};
+
+export default {
+    compile: compile,
+    parse: parse,
+    ends: true
 }

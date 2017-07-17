@@ -1,4 +1,5 @@
 import { CompileFunction, ParseFunction } from './index';
+import { TYPES as types } from '../lexer';
 /**
  * Used to create conditional statements in templates. Accepts most JavaScript valid comparisons.
  *
@@ -47,7 +48,7 @@ const compile: CompileFunction = function (compiler, args, content, parents, opt
         }`;
 }
 
-const parse: ParseFunction = function (str, line, parser, types) {
+const parse: ParseFunction = function (str, line, parser) {
     if (typeof str === 'undefined') {
         throw new Error('No conditional statement provided on line ' + line + '.');
     }

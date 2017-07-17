@@ -1,4 +1,5 @@
 import { CompileFunction, ParseFunction } from './index';
+import { TYPES as types } from '../lexer';
 /**
  * Makes the current template extend a parent template. This tag must be the first item in your template.
  *

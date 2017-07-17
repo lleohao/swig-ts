@@ -1,4 +1,6 @@
 import { CompileFunction, ParseFunction } from './index';
+import { TYPES as types } from '../lexer';
+
 /**
  * Defines a block in a template that can be overridden by a template extending this one and/or will override the current template's parent template block of the same name.
  * 

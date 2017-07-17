@@ -1,4 +1,5 @@
 import { CompileFunction, ParseFunction } from './index';
+import { TYPES as types } from '../lexer';
 import utils from '../utils';
 const strings = ['html', 'js'];
 
@@ -21,7 +22,7 @@ const compile: CompileFunction = function (compiler, args, contents, parents, op
     return compiler(contents, parents, options, blockName);
 };
 
-const parse: ParseFunction = function (str, line, parser, types, stack, opts) {
+const parse: ParseFunction = function (str, line, parser, stack, opts) {
     let matched;
     parser.on('*', function (token) {
         if (!matched &&
