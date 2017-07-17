@@ -72,7 +72,7 @@ class TokenParser {
         if (this.parsers.start) {
             this.parsers.start.call(this);
         }
-        utils.each(tokens, (token, i) => {
+        utils.each(tokens, function (token, i) {
             let prevToken = tokens[i - 1];
             this.isLast = (i === tokens.length - 1);
             if (prevToken) {
@@ -83,7 +83,7 @@ class TokenParser {
             }
             this.prevToken = prevToken;
             this.parseToken(token);
-        })
+        }, this)
         if (this.parsers.end) {
             this.parsers.end.call(this);
         }
@@ -526,8 +526,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             utils.throwError('Unexpected tag "' + tagName + '"', line, opts.filename);
         }
 
-        parser.parse();
-        args = parser.out;
+        args = parser.parse();
 
         switch (tagName) {
             case 'autoescape':
@@ -655,6 +654,7 @@ const compile = function (template, parents, options: SwigOptions, blockName?: s
 
     utils.each(tokens, function (token) {
         let o;
+        // 纯文字在这里填充进去
         if (typeof token === 'string') {
             out += '_output += "' + token.replace(/\\/g, '\\\\').replace(/\n|\r/g, '\\n').replace(/"/g, '\\"') + '";\n';
             return;

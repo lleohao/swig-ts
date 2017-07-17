@@ -24,21 +24,21 @@ const endsWith = function (str: string, suffix: string) {
 };
 
 
-const each = function (obj: Enumerable, fn: Function) {
+const each = function (obj: Enumerable, fn: Function, context?) {
     let i, l;
 
     if (isArray(obj)) {
         i = 0;
         l = obj.length;
         for (i; i < l; i += 1) {
-            if (fn(obj[i], i, obj) === false) {
+            if (context ? fn.call(context, obj[i], i, obj) === false : fn(obj[i], i, obj) === false) {
                 break;
             }
         }
     } else {
         for (i in obj) {
             if (obj.hasOwnProperty(i)) {
-                if (fn(obj[i], i, obj) === false) {
+                if (context ? fn.call(context, obj[i], i, obj) === false : fn(obj[i], i, obj) === false) {
                     break;
                 }
             }
