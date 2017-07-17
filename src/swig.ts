@@ -391,7 +391,7 @@ export class Swig {
      * @param {SwigOptions} [options={}]    Swig options object.
      * @memberof Swig
      */
-    private parse(source: string, options: SwigOptions = {}): ParseToken {
+    parse(source: string, options: SwigOptions = {}): ParseToken {
         validateOptions(options);
         let locals = this.getLocals(options),
             opts = {},
@@ -416,7 +416,7 @@ export class Swig {
      * @param {SwigOptions} [options={}]    Swig optiosn object.
      * @memberof Swig
      */
-    private parseFile(pathname: string, options: SwigOptions = {}) {
+    parseFile(pathname: string, options: SwigOptions = {}) {
         let src;
 
         pathname = this.options.loader.reslove(pathname, options.resolveFrom);

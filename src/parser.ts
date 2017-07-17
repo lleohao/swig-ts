@@ -123,7 +123,7 @@ export class TokenParser {
      * @param {Function}    fn      Callbacak function. Return true to continue executing the default parsing function.
      * @memberof TokenParser
      */
-    on(type: number | '*', fn: (token: LexerToken) => void) {
+    on(type: number | '*' | 'end' | 'start', fn: (token: LexerToken) => void) {
         this.parsers[type] = fn;
     }
 

@@ -7,8 +7,10 @@ import autoescape from './autoescape';
 import _extends from './extends';
 import filter from './filter';
 import _for from './for';
+import _import from './import';
+import include from './include';
 
-import { SwigOptions } from '../swig';
+import { SwigOptions, Swig } from '../swig';
 import { TokenParser } from '../parser';
 
 
@@ -43,7 +45,7 @@ export interface CompileFunction {
 }
 
 export interface ParseFunction {
-    (str: string, line: number, parser: TokenParser, stack?: any[], opts?: SwigOptions): boolean;
+    (str: string, line: number, parser: TokenParser, stack?: any[], opts?: SwigOptions, swig?: Swig): boolean;
 }
 
 export interface Tags {
@@ -60,5 +62,7 @@ export default {
     autoescape: autoescape,
     "extends": _extends,
     filter: filter,
-    "for": _for
+    "for": _for,
+    "import": _import,
+    include: include
 }
