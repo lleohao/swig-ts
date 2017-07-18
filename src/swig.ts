@@ -7,17 +7,14 @@ import parser, { ParseToken } from './parser';
 import * as loaders from './loaders';
 import { LexerToken } from './lexer';
 
-export interface obj {
-    [key: string]: any;
-}
 
-export interface CompiledTemplate {
-    (locals?: obj): string;
+export interface TemplateCompiled {
+    (locals?: {}): string;
 }
 
 export interface CacheOptions {
-    get: (key: string) => CompiledTemplate;
-    set: (key: string, val: CompiledTemplate) => boolean;
+    get: (key: string) => TemplateCompiled;
+    set: (key: string, val: TemplateCompiled) => boolean;
 }
 
 /**
@@ -25,56 +22,56 @@ export interface CacheOptions {
  * 
  * @export
  * @memberof Swig
- * @interface DefaultOptions
+ * @interface SwigOptions
  */
-export interface SwigOptions extends obj, Object {
+export interface SwigOptions extends Object {
     /**
      * Controls whether or not variable output will automatically be escaped for safe HTML output. Defaults to <code data-language="js">true</code>. Functions executed in variable statements will not be auto-escaped. Your application/functions should take care of their own auto-escaping.
      * 
      * @type {boolean}
-     * @memberOf DefaultOptions
+     * @memberof SwigOptions
      */
     autoescape?: boolean;
     /**
      * Open and close controls for variables. Defaults to <code data-language="js">['{{', '}}']</code>.
      * 
      * @type {string[]}
-     * @memberOf DefaultOptions
+     * @memberof SwigOptions
      */
     varControls?: string[];
     /**
      * Open and close controls for tags. Defaults to <code data-language="js">['{%', '%}']</code>.
      * 
      * @type {string[]}
-     * @memberOf DefaultOptions
+     * @memberof SwigOptions
      */
     tagControls?: string[];
     /**
      * Open and close controls for comments. Defaults to <code data-language="js">['{#', '#}']</code>.
      * 
      * @type {string[]}
-     * @memberOf DefaultOptions
+     * @memberof SwigOptions
      */
     cmtControls?: string[];
     /**
      * Default variable context to be passed to <strong>all</strong> templates.
      * 
-     * @type {obj}
-     * @memberOf DefaultOptions
+     * @type {object}
+     * @memberof SwigOptions
      */
-    locals?: obj;
+    locals?: {};
     /**
      * Cache control for templates. Defaults to saving in <code data-language="js">'memory'</code>. Send <code data-language="js">false</code> to disable. Send an object with <code data-language="js">get</code> and <code data-language="js">set</code> functions to customize.
      * 
      * @type {boolean|string|CacheOptions}
-     * @memberOf DefaultOptions
+     * @memberof SwigOptions
      */
     cache?: boolean | string | CacheOptions;
     /**
      * The method that Swig will use to load templates. Defaults to <var>swig.loaders.fs</var>.
      * 
      * @type {TemplateLoader.templateLoader}
-     * @memberOf DefaultOptions
+     * @memberof SwigOptions
      */
     loader?: TemplateLoader.templateLoader;
     /**
@@ -84,6 +81,13 @@ export interface SwigOptions extends obj, Object {
      * @memberof SwigOptions
      */
     resolveFrom?: string;
+    /**
+     * Template file name
+     * 
+     * @type {string}
+     * @memberof SwigOptions
+     */
+    filename?: string;
 }
 
 
@@ -217,7 +221,7 @@ exports.setDefaultTZOffset = function (offset) {
  */
 export class Swig {
     options: SwigOptions;
-    cache: { [key: string]: CompiledTemplate };
+    cache: { [key: string]: TemplateCompiled };
     extensions: {};
     filters: Filters;
     tags: Tags;
@@ -296,7 +300,7 @@ export class Swig {
      * @returns 
      * @memberof Swig
      */
-    private cacheSet(key: string, options: SwigOptions, val: CompiledTemplate) {
+    private cacheSet(key: string, options: SwigOptions, val: TemplateCompiled) {
         if (this.shouldCache(options)) {
             return;
         }
@@ -485,9 +489,9 @@ export class Swig {
                 throw new Error(`Cannot extend "${parentName}" because current template has no filename`);
             }
 
-            parentFile = parentFile || options.filanema;
+            parentFile = parentFile || options.filename;
             parentFile = this.options.loader.reslove(parentName, parentFile);
-            parent = this.cacheGet(parentFile, options) || this.parseFile(parentFile, utils.extend({}, options, { filanema: parentFile }));
+            parent = this.cacheGet(parentFile, options) || this.parseFile(parentFile, utils.extend({}, options, { filename: parentFile }));
             parentName = parent.parent;
 
             if (parentFile.indexOf(parentFile) !== -1) {
@@ -635,7 +639,7 @@ export class Swig {
      * @param  {SwigOpts} [options={}] Swig options object.
      * @return {function}         Renderable function with keys for parent, blocks, and tokens.
      */
-    compile(source: string, optiosn: SwigOptions = {}): CompiledTemplate {
+    compile(source: string, optiosn: SwigOptions = {}): TemplateCompiled {
         let key = optiosn ? optiosn.filename : null,
             cached = key ? this.cacheGet(key) : null,
             filters = this.filters,
@@ -679,7 +683,7 @@ export class Swig {
     compileFile(pathname: string, options: SwigOptions = {}, cb?: Function): Function {
         let src, cached;
 
-        pathname = this.options.locals.reslove(pathname, options.resolveFrom);
+        pathname = this.options.loader.reslove(pathname, options.resolveFrom);
         if (!options.filename) {
             options = utils.extend({ filename: pathname }, options);
         }
