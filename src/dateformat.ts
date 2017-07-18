@@ -10,172 +10,231 @@ const _days = {
     alt: { '-1': 'Yesterday', 0: 'Today', 1: 'Tomorrow' }
 }
 
-export var tzOffset = 0;
-export class DateZ implements DateZ {
-    private date: Date;
-    private dateZ: Date;
-    private timezoneOffset: number;
+/*
+DateZ is licensed under the MIT License:
+Copyright (c) 2011 Tomo Universalis (http://tomouniversalis.com)
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+let tzOffset = 0;
 
-    constructor(...argument: any[]) {
-        const members = {
-            'default': ['getUTCDate', 'getUTCDay', 'getUTCFullYear', 'getUTCHours', 'getUTCMilliseconds', 'getUTCMinutes', 'getUTCMonth', 'getUTCSeconds', 'toISOString', 'toGMTString', 'toUTCString', 'valueOf', 'getTime'],
-            z: ['getDate', 'getDay', 'getFullYear', 'getHours', 'getMilliseconds', 'getMinutes', 'getMonth', 'getSeconds', 'getYear', 'toDateString', 'toLocaleDateString', 'toLocaleTimeString']
-        };
+export class DateZ {
+    members = {
+        'default': ['getUTCDate', 'getUTCDay', 'getUTCFullYear', 'getUTCHours', 'getUTCMilliseconds', 'getUTCMinutes', 'getUTCMonth', 'getUTCSeconds', 'toISOString', 'toGMTString', 'toUTCString', 'valueOf', 'getTime'],
+        z: ['getDate', 'getDay', 'getFullYear', 'getHours', 'getMilliseconds', 'getMinutes', 'getMonth', 'getSeconds', 'getYear', 'toDateString', 'toLocaleDateString', 'toLocaleTimeString']
+    };
+    date: Date;
+    dateZ: Date;
+    timezoneOffset: number;
 
-        this.date = this.dateZ = (argument.length > 1) ? new Date(Date.UTC.apply(Date, argument) + (new Date().getTimezoneOffset() * 60 * 1000)) : (argument.length === 1) ? new Date(new Date(argument[0])) : new Date();
+    constructor(...args) {
+        this.date = this.dateZ = (args.length > 1) ? new Date(Date.UTC.apply(Date, args) + ((new Date()).getTimezoneOffset() * 60000)) : (args.length === 1) ? new Date(new Date(args[0])) : new Date();
         this.timezoneOffset = this.dateZ.getTimezoneOffset();
 
-        utils.each(members.z, (name: string) => {
-            (this as any)[name] = function () {
-                return (this.dateZ as any)[name]();
-            }
-        });
-
-        /**
-         * Default get UTC time
-         */
-        utils.each(members['default'], (name: string) => {
-            (this as any)[name] = function () {
-                return (this.date as any)[name]();
+        utils.each(this.members.z, (name) => {
+            this[name] = () => {
+                return this.dateZ[name]();
             };
         });
 
-        this.setTimezoneOffset(tzOffset);
+        utils.each(this.members['defaults'], (name) => {
+            this[name] = () => {
+                return this.date[name]();
+            }
+        });
+
     }
 
-    getTimezoneOffset() {
+    getTimezoneOffset(): number {
         return this.timezoneOffset;
     }
 
-    setTimezoneOffset(offset: number) {
+    setTimezoneOffset(offset: number): DateZ {
         this.timezoneOffset = offset;
         this.dateZ = new Date(this.date.getTime() + this.date.getTimezoneOffset() * 60000 - this.timezoneOffset * 60000);
         return this;
     }
+
+    valueOf() {
+        return this.date.valueOf();
+    }
 }
 
-// Day
-export const d = (input: Date) => {
+//Day
+const d = function (input: Date) {
     return (input.getDate() < 10 ? '0' : '') + input.getDate();
 }
-export const D = (input: Date) => {
+const D = function (input: Date) {
     return _days.abbr[input.getDay()];
 }
-export const j = (input: Date) => {
+
+const j = function (input: Date) {
     return input.getDate();
-}
-export const l = (input: Date) => {
+};
+const l = function (input: Date) {
     return _days.full[input.getDay()];
 };
-export const N = (input: Date) => {
+const N = function (input: Date) {
     var d = input.getDay();
     return (d >= 1) ? d : 7;
 };
-export const S = (input: Date) => {
+const S = function (input: Date) {
     var d = input.getDate();
     return (d % 10 === 1 && d !== 11 ? 'st' : (d % 10 === 2 && d !== 12 ? 'nd' : (d % 10 === 3 && d !== 13 ? 'rd' : 'th')));
 };
-export const w = (input: Date) => {
+const w = function (input: Date) {
     return input.getDay();
 };
+const z = function (input: Date, offset: number) {
+    var year = input.getFullYear(),
+        e = new DateZ(year, input.getMonth(), input.getDate(), 12, 0, 0),
+        d = new DateZ(year, 0, 1, 12, 0, 0);
 
-// FIXME: Invalid parameter exists 
-// export const z = (input: Date, offset: number) => {
-//     var year = input.getFullYear(),
-//         e = new DateZ(year, input.getMonth(), input.getDate(), 12, 0, 0),
-//         d = new DateZ(year, 0, 1, 12, 0, 0);
+    e.setTimezoneOffset(offset);
+    d.setTimezoneOffset(offset);
+    return Math.round((e.valueOf() - d.valueOf()) / 86400000);
+};
 
-//     e.setTimezoneOffset(offset);
-//     d.setTimezoneOffset(offset);
-//     return Math.round((e.getTimezoneOffset() - d.getTimezoneOffset()) / 86400000);
-// };
+// Week
+const W = function (input: Date) {
+    var target = new Date(input.valueOf()),
+        dayNr = (input.getDay() + 6) % 7,
+        fThurs;
+
+    target.setDate(target.getDate() - dayNr + 3);
+    fThurs = target.valueOf();
+    target.setMonth(0, 1);
+    if (target.getDay() !== 4) {
+        target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+    }
+
+    return 1 + Math.ceil((fThurs - target.valueOf()) / 604800000);
+};
 
 // Month
-exports.F = (input: Date) => {
+const F = function (input: Date) {
     return _months.full[input.getMonth()];
 };
-exports.m = (input: Date) => {
+const m = function (input: Date) {
     return (input.getMonth() < 9 ? '0' : '') + (input.getMonth() + 1);
 };
-exports.M = (input: Date) => {
+const M = function (input: Date) {
     return _months.abbr[input.getMonth()];
 };
-exports.n = (input: Date) => {
+const n = function (input: Date) {
     return input.getMonth() + 1;
 };
-exports.t = (input: Date) => {
+const t = function (input: Date) {
     return 32 - (new Date(input.getFullYear(), input.getMonth(), 32).getDate());
 };
 
 // Year
-exports.L = (input: Date) => {
+const L = function (input: Date) {
     return new Date(input.getFullYear(), 1, 29).getDate() === 29;
 };
-exports.o = (input: Date) => {
+const o = function (input: Date) {
     var target = new Date(input.valueOf());
     target.setDate(target.getDate() - ((input.getDay() + 6) % 7) + 3);
     return target.getFullYear();
 };
-exports.Y = (input: Date) => {
+const Y = function (input: Date) {
     return input.getFullYear();
 };
-exports.y = (input: Date) => {
+const y = function (input: Date) {
     return (input.getFullYear().toString()).substr(2);
 };
 
 // Time
-exports.a = (input: Date) => {
+const a = function (input: Date) {
     return input.getHours() < 12 ? 'am' : 'pm';
 };
-exports.A = (input: Date) => {
+const A = function (input: Date) {
     return input.getHours() < 12 ? 'AM' : 'PM';
 };
-exports.B = (input: Date) => {
+const B = function (input: Date) {
     var hours = input.getUTCHours(), beats;
     hours = (hours === 23) ? 0 : hours + 1;
     beats = Math.abs(((((hours * 60) + input.getUTCMinutes()) * 60) + input.getUTCSeconds()) / 86.4).toFixed(0);
     return ('000'.concat(beats).slice(beats.length));
 };
-exports.g = (input: Date) => {
+const g = function (input: Date) {
     var h = input.getHours();
     return h === 0 ? 12 : (h > 12 ? h - 12 : h);
 };
-exports.G = (input: Date) => {
+const G = function (input: Date) {
     return input.getHours();
 };
-exports.h = (input: Date) => {
+const h = function (input: Date) {
     var h = input.getHours();
     return ((h < 10 || (12 < h && 22 > h)) ? '0' : '') + ((h < 12) ? h : h - 12);
 };
-exports.H = (input: Date) => {
+const H = function (input: Date) {
     var h = input.getHours();
     return (h < 10 ? '0' : '') + h;
 };
-exports.i = (input: Date) => {
+const i = function (input: Date) {
     var m = input.getMinutes();
     return (m < 10 ? '0' : '') + m;
 };
-exports.s = (input: Date) => {
+const s = function (input: Date) {
     var s = input.getSeconds();
     return (s < 10 ? '0' : '') + s;
 };
 
 // Timezone
-exports.O = (input: Date) => {
+const O = function (input: Date) {
     var tz = input.getTimezoneOffset();
     return (tz < 0 ? '-' : '+') + (tz / 60 < 10 ? '0' : '') + Math.abs((tz / 60)) + '00';
 };
-exports.Z = (input: Date) => {
+const Z = function (input: Date) {
     return input.getTimezoneOffset() * 60;
 };
 
 // Full Date/Time
-exports.c = (input: Date) => {
+const c = function (input: Date) {
     return input.toISOString();
 };
-exports.r = (input: Date) => {
+const r = function (input: Date) {
     return input.toUTCString();
 };
-exports.U = (input: Date) => {
+const U = function (input: Date) {
     return input.getTime() / 1000;
 };
+
+export default {
+    DateZ: DateZ,
+    tzOffset: tzOffset,
+    d: d,
+    D: D,
+    j: j,
+    l: l,
+    N: N,
+    S: S,
+    w: w,
+    z: z,
+    W: W,
+    F: F,
+    m: m,
+    M: M,
+    n: n,
+    t: t,
+    L: L,
+    o: o,
+    Y: Y,
+    y: y,
+    a: a,
+    A: A,
+    B: B,
+    g: g,
+    G: G,
+    h: h,
+    H: H,
+    i: i,
+    s: s,
+    O: O,
+    Z: Z,
+    c: c,
+    r: r,
+    U: U
+}

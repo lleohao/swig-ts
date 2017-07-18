@@ -1,5 +1,5 @@
 import utils from './utils';
-import * as dateFormatter from './dateformat';
+import dateFormatter from './dateformat';
 
 /**
  * Filters are simply function that perform transformations on their first input argument.
@@ -121,8 +121,7 @@ const date = function (input: string | Date, format: string, offset: number, abb
             i += 1;
             out += (i < l) ? format.charAt(i) : cur;
         } else if (dateFormatter.hasOwnProperty(cur)) {
-            // FIXME: 修复 dateFormatter 
-            // out += dateFormatter[cur](date, offset, abbr);
+            out += dateFormatter[cur](date, offset, abbr);
         } else {
             out += cur;
         }

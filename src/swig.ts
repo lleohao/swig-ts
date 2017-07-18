@@ -2,7 +2,7 @@ import utils from './utils';
 import _filters, { Filters } from './filters';
 import tags, { Tags, CompileFunction, ParseFunction } from './tags';
 import { fs, TemplateLoader } from './loaders';
-import * as dateformatter from './dateformat';
+import dateformatter from './dateformat';
 import parser, { ParseToken } from './parser';
 import * as loaders from './loaders';
 import { LexerToken } from './lexer';
@@ -201,8 +201,7 @@ export const setDefaults = function (options: SwigOptions = {}): void {
  * @return {undefined}
  */
 exports.setDefaultTZOffset = function (offset) {
-    // FIXME: 修改自己封装的时间对象
-    // dateformatter.tzOffset = offset;
+    dateformatter.tzOffset = offset;
 };
 
 /**
