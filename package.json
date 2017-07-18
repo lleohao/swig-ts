@@ -31,10 +31,7 @@
   "homepage": "https://github.com/lleohao/swig-tp#readme",
   "devDependencies": {
     "@types/node": "^7.0.29",
-    "ts-lint": "^4.5.1",
-    "typescript": "^2.3.4"
-  },
-  "dependencies": {
+    "typescript": "^2.3.4",
     "tslint": "^5.5.0"
   }
 }
