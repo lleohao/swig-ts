@@ -1,9 +1,14 @@
 {
   "name": "swig-ts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Use typescipt rewrite swig",
   "main": "lib/swig.js",
   "types": "typings/swig.d.ts",
+  "files": [
+    "lib",
+    "typings",
+    "README.MD"
+  ],
   "scripts": {
     "test": "npm test",
     "build": "tsc -p ./src",
