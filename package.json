@@ -1,19 +1,15 @@
 {
   "name": "swig-ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Use typescipt rewrite swig",
   "main": "lib/swig.js",
-  "types": "typings/swig.ts",
+  "types": "typings/swig.d.ts",
   "scripts": {
     "test": "npm test",
     "build": "tsc -p ./src",
     "dev": "tsc -p ./src -w",
     "prepublish": "npm run build"
   },
-  "files": [
-    "lib",
-    "typings"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lleohao/swig-tp.git"

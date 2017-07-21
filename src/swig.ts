@@ -94,9 +94,9 @@ export interface SwigOptions extends Object {
 /**
  * Swig version number as string.
  * @example 
- * if (swig.version === '0.0.1') { ... }
+ * if (swig.version === '1.0.1') { ... }
  */
-export const version: string = '0.0.1';
+const version: string = '1.0.1';
 
 
 const defaultOptions: SwigOptions = {
@@ -189,7 +189,7 @@ function validateOptions(options: SwigOptions) {
  * 
  * @param options 
  */
-export const setDefaults = function (options: SwigOptions = {}): void {
+const setDefaults = function (options: SwigOptions = {}): void {
     validateOptions(options);
     defaultInstance.options = utils.extend(defaultInstance.options, options);
 }
@@ -200,7 +200,7 @@ export const setDefaults = function (options: SwigOptions = {}): void {
  * @param  {number} offset Offset from GMT, in minutes.
  * @return {undefined}
  */
-exports.setDefaultTZOffset = function (offset) {
+const setDefaultTZOffset = function (offset) {
     dateformatter.tzOffset = offset;
 };
 
@@ -748,7 +748,9 @@ export class Swig {
 };
 
 defaultInstance = new Swig();
+
 export default {
     swig: defaultInstance,
-    setDefaults: setDefaults
+    setDefaults: setDefaults,
+    setDefaultTZOffset: setDefaultTZOffset
 }
