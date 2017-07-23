@@ -12,7 +12,6 @@
     "build": "rimraf lib/* & tsc -p ./src",
     "dev": "tsc -p ./src -w",
     "prepublish": "npm run build",
-    "pretest": "npm run build",
     "test": "./node_modules/.bin/mocha -r ./node_modules/ts-node/register ./tests/*.ts"
   },
   "repository": {

@@ -26,60 +26,51 @@ export interface SwigOptions extends Object {
      * Functions executed in variable statements will not be auto-escaped. 
      * Your application/functions should take care of their own auto-escaping.
      * 
-     * @type {boolean}
      * @default true
      */
     autoescape?: boolean;
     /**
      * Open and close controls for variables.
      * 
-     * @type {string[]}
      * @default ['{{', '}}']
      */
-    varControls?: string[];
+    varControls?: [string, string];
     /**
      * Open and close controls for tags.
      * 
-     * @type {string[]}
      * @default ['{%', '%}']
      */
-    tagControls?: string[];
+    tagControls?: [string, string];
     /**
      * Open and close controls for comments.
      * 
-     * @type {string[]}
      * @default ['{#', '#}']
      */
-    cmtControls?: string[];
+    cmtControls?: [string, string];
     /**
      * Default variable context to be passed to <strong>all</strong> templates.
      * 
-     * @type {object}
      */
     locals?: {};
     /**
      * Cache control for templates. Send false to disable. Send an object with get and set functions to customize.
      * 
-     * @type {boolean|CacheOptions}
      * @default true
      */
     cache?: boolean | CacheOptions;
     /**
      * The method that Swig will use to load templates. Defaults to swig.loaders.fs.
      * 
-     * @type {TemplateLoader.templateLoader}
      */
     loader?: TemplateLoader.templateLoader;
     /**
      * Resolve path
      * 
-     * @type {string}
      */
     resolveFrom?: string;
     /**
      * Template file name. Don't send any value to this property.
      * 
-     * @type {string}
      */
     filename?: string;
 }
@@ -136,25 +127,21 @@ function efn() { return '' }
  * @param {SwigOptions} options 
  */
 function validateOptions(options: SwigOptions) {
-    utils.each(['varControls', 'tagControls', 'cmtControls'], (key: string) => {
+    ['varControls', 'tagControls', 'cmtControls'].forEach((key) => {
         if (!options.hasOwnProperty(key)) {
             return;
         }
-        let value = <string[]>options[key];
-
-        if (!utils.isArray(value) || value.length !== 2) {
-            throw new Error(`Options "${key}" must be an array containing 2 different control strings.`);
-        }
+        const value = options[key];
 
         if (value[0] === value[1]) {
             throw new Error(`Options "${key}" open and close controls must not be the same.`);
         }
 
-        utils.each(options[key], function (a: string[], i: number) {
-            if (a.length < 2) {
-                throw new Error('Option "' + key + '" ' + ((i) ? 'open ' : 'close ') + 'control must be at least 2 characters. Saw "' + a + '" instead.');
+        (value as string[]).forEach((value, index) => {
+            if (value.length < 2) {
+                throw new Error(`Optiosn "${key}" ${(index === 0) ? 'open ' : 'close'} control must be at least 2 characters. Saw "${value}" instead.`);
             }
-        });
+        })
     });
 }
 
