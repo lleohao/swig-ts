@@ -6,7 +6,7 @@ import { TemplateLoader } from './index';
 export const fs = (basepath: string | null = '', encoding: string = 'utf8') => {
     basepath = (basepath) ? normalize(basepath) : null;
 
-    const vet: TemplateLoader.templateLoader = {
+    const vet: TemplateLoader = {
         reslove: (to, from) => {
             if (basepath) {
                 from = basepath;

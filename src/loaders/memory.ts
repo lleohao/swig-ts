@@ -24,7 +24,7 @@ export interface MemoryInterface {
 export const memory = (mapping: MemoryInterface, basepath?: string | null) => {
     basepath = (basepath) ? normalize(basepath) : null;
 
-    const vet: TemplateLoader.templateLoader = {
+    const vet: TemplateLoader = {
         reslove: (to, from) => {
             if (basepath) {
                 from = basepath;
