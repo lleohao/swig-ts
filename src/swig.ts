@@ -92,9 +92,7 @@ const defaultOptions: SwigOptions = {
     locals: {},
     /**
      * Cache control for templates. Defaults to saving all templates into memory.
-     * @example
-     * // Default
-     * swig.setDefaults({ cache: 'memory' });
+     * 
      * @example
      * // Disables caching in Swig.
      * swig.setDefaults({ cache: false });
@@ -109,11 +107,8 @@ const defaultOptions: SwigOptions = {
      */
     cache: true,
     /**
-     * Configure Swig to use either the <var>swig.loaders.fs</var> or <var>swig.loaders.memory</var> template loader. Or, you can write your own!
-     * For more information, please see the <a href="../loaders/">Template Loaders documentation</a>.
-     * @example
-     * // Default, FileSystem loader
-     * swig.setDefaults({ loader: swig.loaders.fs() });
+     * Configure Swig to use either the `swig.loaders.fs` or `swig.loaders.memory` template loader. 
+     * Or, you can write your own!
      * @example
      * // FileSystem loader allowing a base path
      * // With this, you don't use relative URLs in your template references
@@ -158,27 +153,6 @@ function validateOptions(options: SwigOptions) {
         });
     });
 }
-
-/**
- * Set defaults for the base and all new Swig environments.
- * 
- * @example
- * swing.setDefaut({ case: fales });
- * // ==> Disabled Cache
- * 
- * @example
- * swig.setDefaults({ locals: { now: function () { return new Date(); } }});
- * // => sets a globally accessible method for all template
- * //    contexts, allowing you to print the current date
- * // => {{ now()|date('F jS, Y') }}
- * 
- * @param options 
- */
-const setDefaults = function (options: SwigOptions = {}): void {
-    validateOptions(options);
-    defaultInstance.options = utils.extend(defaultInstance.options, options);
-};
-
 
 /**
  * Set the default TimeZone offset for date formatting via the date filter. This is a global setting and will affect all Swig environments, old or new.
@@ -351,7 +325,7 @@ export class Swig {
     }
 
     /**
-     * Add extensions for custom tags. This allows any custom tag to access a globally available methods via a special globally available object, <var>_ext</var>, in templates.
+     * Add extensions for custom tags. This allows any custom tag to access a globally available methods via a special globally available object, <var>_ext, in templates.
      *
      * @example
      * swig.setExtension('trans', function (v) { return translate(v); });
@@ -565,7 +539,7 @@ export class Swig {
      *
      * @param  {string}   pathName    File location.
      * @param  {object}   [locals={}] Template variable context.
-     * @param  {Function} [cb] Asyncronous callback function. If not provided, <var>compileFile</var> will run syncronously.
+     * @param  {Function} [cb] Asyncronous callback function. If not provided, <var>compileFile will run syncronously.
      * @return {string}             Rendered output.
      */
     renderFile(pathName, locals, cb) {
@@ -608,7 +582,7 @@ export class Swig {
      * tpl({ tacos: 'Tacos!!!!' });
      * // => Tacos!!!!
      *
-     * When compiling a source string, a file path should be specified in the options object in order for <var>extends</var>, <var>include</var>, and <var>import</var> to work properly. Do this by adding <code data-language="js">{ filename: '/absolute/path/to/mytpl.html' }</code> to the options argument.
+     * When compiling a source string, a file path should be specified in the options object in order for <var>extends, <var>include, and <var>import to work properly. Do this by adding <code data-language="js">{ filename: '/absolute/path/to/mytpl.html' }</code> to the options argument.
      *
      * @param  {string}         source      Swig template source string.
      * @param  {SwigOptions}    options     Swig options.
@@ -698,10 +672,6 @@ export class Swig {
     }
 }
 
-defaultInstance = new Swig();
-
 export default {
-    swig: defaultInstance,
-    setDefaults: setDefaults,
-    setDefaultTZOffset: setDefaultTZOffset
+    setDefaultTZOffset
 }
