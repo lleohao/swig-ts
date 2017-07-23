@@ -73,6 +73,12 @@ export interface SwigOptions extends Object {
      * 
      */
     filename?: string;
+    /**
+     * Template file root path.
+     * 
+     * @default ""
+     */
+    templates?: string;
 }
 
 const defaultOptions: SwigOptions = {
@@ -100,18 +106,25 @@ const defaultOptions: SwigOptions = {
     /**
      * Configure Swig to use either the `swig.loaders.fs` or `swig.loaders.memory` template loader. 
      * Or, you can write your own!
+     * 
      * @example
-     * // FileSystem loader allowing a base path
-     * // With this, you don't use relative URLs in your template references
-     * swig.setDefaults({ loader: swig.loaders.fs(__dirname + '/templates') });
-     * @example
+     * FIXME: 想个更好的方式定义loader
      * // Memory Loader
      * swig.setDefaults({ loader: swig.loaders.memory({
      *   layout: '{% block foo %}{% endblock %}',
      *   page1: '{% extends "layout" %}{% block foo %}Tacos!{% endblock %}'
      * })}); 
      */
-    loader: fs()
+    loader: undefined,
+    /*
+     * Set fileSystem loader allowing a base path.
+     * 
+     * @example
+     * // FileSystem loader allowing a base path
+     * // With this, you don't use relative URLs in your template references
+     * swig.setDefaults({ templates: __dirname + '/templates' });
+     */
+    templates: ''
 };
 
 /**
@@ -183,6 +196,9 @@ export class Swig {
     constructor(opts: SwigOptions = {}) {
         validateOptions(opts);
         this.options = utils.extend({}, defaultOptions, opts);
+        if (this.options.loader === undefined) {
+            this.options.loader = fs(this.options.templates);
+        }
         this.cache = {};
         this.extensions = {};
         this.filters = _filters;
@@ -333,8 +349,8 @@ export class Swig {
     /**
      * Parse a given source string into tokens.
      * 
-     * @param {string} source               Swig template source.
-     * @param {SwigOptions} [options={}]    Swig options object.
+     * @param source          Swig template source.
+     * @param [options={}]    Swig options object.
      * @return {ParseToken}
      * @private
      */
@@ -362,7 +378,7 @@ export class Swig {
      * @param pathname          Full path to file to parse.
      * @param [options={}]      Swig options object.
      */
-    parseFile(pathname: string, options: SwigOptions = {}): ParseToken {
+    private parseFile(pathname: string, options: SwigOptions = {}): ParseToken {
         let src;
 
         pathname = this.options.loader.reslove(pathname, options.resolveFrom);
