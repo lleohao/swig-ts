@@ -122,7 +122,6 @@ const defaultOptions: SwigOptions = {
      */
     loader: fs()
 };
-let defaultInstance: Swig;
 
 /**
  * Empty function, used in templates.
@@ -131,6 +130,11 @@ let defaultInstance: Swig;
  */
 function efn() { return '' }
 
+/**
+ * Valiadte options.
+ * 
+ * @param {SwigOptions} options 
+ */
 function validateOptions(options: SwigOptions) {
     utils.each(['varControls', 'tagControls', 'cmtControls'], (key: string) => {
         if (!options.hasOwnProperty(key)) {
@@ -164,12 +168,12 @@ const setDefaultTZOffset = function (offset) {
 };
 
 /**
- * Create a new, separate Swig compile/render environment.
+ * Create a new Swig compile/render environment.
  * 
  * @example
- * var swig = require('swig');
- * var myswig = new swig.Swig({varControls: ['<%=', '%>']});
- * myswig.render('Tacos are <%= tacos =>!', { locals: { tacos: 'delicious' }});
+ * import { Swig } from 'swig-ts';
+ * const swig = new Swig({ varControls: ['<%=', '%>'] })
+ * swig.render('Tacos are <%= tacos =>!', { locals: { tacos: 'delicious' }});
  * // => Tacos are delicious!
  * swig.render('Tacos are <%= tacos =>!', { locals: { tacos: 'delicious' }});
  * // => 'Tacos are <%= tacos =>!'
@@ -178,16 +182,16 @@ const setDefaultTZOffset = function (offset) {
  * @class Swig
  */
 export class Swig {
-    options: SwigOptions;
-    cache: { [key: string]: TemplateCompiled };
-    extensions: {};
-    filters: Filters;
-    tags: Tags;
+    private options: SwigOptions;
+    private cache: { [key: string]: TemplateCompiled };
+    private extensions: {};
+    private filters: Filters;
+    private tags: Tags;
 
     /**
      * Creates an instance of Swig.
-     *
-     * @memberOf Swig
+     * 
+     * @param [opts]
      */
     constructor(opts: SwigOptions = {}) {
         validateOptions(opts);
@@ -202,11 +206,10 @@ export class Swig {
      * Get combined locals context.
      * 
      * @private
-     * @param {SwigOptions} [options] 
+     * @param [options] 
      * @returns {object}
-     * @memberof Swig
      */
-    private getLocals(options: SwigOptions = {}): Object {
+    private getLocals(options: SwigOptions = {}): object {
         if (!options || !options.locals) {
             return this.options.locals;
         }
@@ -219,8 +222,7 @@ export class Swig {
      * 
      * @private
      * @param [options={}] 
-     * @returns 
-     * @memberof Swig
+     * @returns {boolean}
      */
     private shouldCache(options: SwigOptions = {}): boolean {
         return (options.hasOwnProperty('cache') && !options.cache) || !this.options.cache;
@@ -230,12 +232,11 @@ export class Swig {
      * Get compield template from the cache.
      * 
      * @private
-     * @param {string} key              Name of template.
-     * @param {Object} options          Template function and tokens.
-     * @returns 
-     * @memberof Swig
+     * @param key       Name of template.
+     * @param options   Template function and tokens.
+     * @returns {TemplateCompiled}
      */
-    private cacheGet(key: string, options?: Object) {
+    private cacheGet(key: string, options?: SwigOptions): TemplateCompiled {
         if (this.shouldCache(options)) {
             return;
         }
@@ -251,12 +252,12 @@ export class Swig {
      * Store a template in the cache.
      * 
      * @private
-     * @param {string} key              Name of template.
-     * @param {Object} options          Template function and tokens.
-     * @param {string} val              Template function and tokens.
-     * @returns 
+     * @param key              Name of template.
+     * @param options          Template function and tokens.
+     * @param val              Template function and tokens.
+     * @returns {void}
      */
-    private cacheSet(key: string, options: SwigOptions, val: TemplateCompiled) {
+    private cacheSet(key: string, options: SwigOptions, val: TemplateCompiled): void {
         if (this.shouldCache(options)) {
             return;
         }
@@ -271,13 +272,8 @@ export class Swig {
 
     /**
      * Clears the in-memory template cache.
-     *
-     * @example
-     * swig.invalidateCache();
-     *
-     * @return {undefined}
      */
-    public invalidateCache() {
+    public invalidateCache(): void {
         if (this.options.cache) {
             this.cache = {};
         }
@@ -292,10 +288,10 @@ export class Swig {
      * // => {{ "onomatopoeia"|replaceMs }}
      * // => onofatopeia
      * 
-     * @param {string} name                         Name of filter, used in templates. Will overwrite previously defined filters, if using same name.
-     * @param {(input: string) => string} method    Function that acts against the input.
+     * @param name      Name of filter, used in templates. Will overwrite previously defined filters, if using same name.
+     * @param method    Function that acts against the input.
      */
-    setFilter(name: string, method: (input: string) => string): void {
+    public setFilter(name: string, method: (input: string) => string): void {
         this.filters[name] = method;
     }
 
@@ -309,13 +305,13 @@ export class Swig {
      * // => {% tacos %}Make this be tacos.{% endtacos %}
      * // => Tacos tacos tacos tacos.
      * 
-     * @param {string} name                 Tag name. 
-     * @param {ParseFunction} parse              Method for parsing tokens.
-     * @param {CompileFunction} compile            Method for compiling renderable output.
-     * @param {boolean} [ends=false]        Whether or no this tag requires an end tag.
-     * @param {boolean} [blockLevel=false]  If false, this tag will not be compiled outside of block tag when extending a parent template.
+     * @param name                  Tag name. 
+     * @param parse                 Method for parsing tokens.
+     * @param compile               Method for compiling renderable output.
+     * @param [ends=false]          Whether or no this tag requires an end tag.
+     * @param [blockLevel=false]    If false, this tag will not be compiled outside of block tag when extending a parent template.
      */
-    setTag(name: string, parse: ParseFunction, compile: CompileFunction, ends: boolean = false, blockLevel: boolean = false) {
+    public setTag(name: string, parse: ParseFunction, compile: CompileFunction, ends: boolean = false, blockLevel: boolean = false) {
         this.tags[name] = {
             parse: parse,
             compile: compile,
@@ -334,11 +330,10 @@ export class Swig {
      * };
      * swig.setTag('trans', parseTrans, compileTrans, true);
      *
-     * @param  {string} name   Key name of the extension. Accessed via <code data-language="js">_ext[name]</code>.
-     * @param  {*}      object The method, value, or object that should be available via the given name.
-     * @return {undefined}
+     * @param  name   Key name of the extension. Accessed via <code data-language="js">_ext[name]</code>.
+     * @param  object The method, value, or object that should be available via the given name.
      */
-    setExtension(name: string, object) {
+    public setExtension(name: string, object): void {
         this.extensions[name] = object;
     };
 
@@ -347,8 +342,10 @@ export class Swig {
      * 
      * @param {string} source               Swig template source.
      * @param {SwigOptions} [options={}]    Swig options object.
+     * @return {ParseToken}
+     * @private
      */
-    parse(source: string, options: SwigOptions = {}): ParseToken {
+    private parse(source: string, options: SwigOptions = {}): ParseToken {
         validateOptions(options);
         let locals = this.getLocals(options),
             opts = {},
@@ -369,10 +366,10 @@ export class Swig {
     /**
      * Parse a given file into tokens.
      * 
-     * @param {string} pathname             Full path to file to parse.
-     * @param {SwigOptions} [options={}]    Swig optiosn object.
+     * @param pathname          Full path to file to parse.
+     * @param [options={}]      Swig options object.
      */
-    parseFile(pathname: string, options: SwigOptions = {}) {
+    parseFile(pathname: string, options: SwigOptions = {}): ParseToken {
         let src;
 
         pathname = this.options.loader.reslove(pathname, options.resolveFrom);
@@ -423,11 +420,11 @@ export class Swig {
      * Rrecursively compile and get parents of given parsed token object.
      * 
      * @private
-     * @param {object} tokens               Parsed tokens from templates.
-     * @param {SwigOptions} [options={}]    Swign options object.
-     * @return {object}                     Parsed tokens from templates.
+     * @param tokens          Parsed tokens from templates.
+     * @param [options={}]    Swign options object.
+     * @return {any[]}       Parsed tokens from templates.
      */
-    private getParents(tokens, options: SwigOptions = {}) {
+    private getParents(tokens, options: SwigOptions = {}): any[] {
         let parentName = tokens.parent,
             parentFiles = [],
             parents = [],
@@ -478,9 +475,8 @@ export class Swig {
      * 
      * In order to render a pre-compiled template, you must have access to filter and utils from Swig. efn is simply an empty function that does nothing.
      * 
-     * @param {string} source 
-     * @param {SwigOptions} options 
-     * @memberof Swig
+     * @param source    Swig template string.
+     * @param options   Swig options.
      */
     preCompile(source: string, options: SwigOptions): { tpl: Function, tokens: ParseToken } {
         let tokens = this.parse(source, options),
@@ -518,7 +514,7 @@ export class Swig {
      * @param source          Swig template string.
      * @param [options={}]    Swig options object.
      */
-    render(source: string, options: SwigOptions = {}) {
+    public render(source: string, options: SwigOptions = {}) {
         return this.compile(source, options)();
     };
 
@@ -537,12 +533,12 @@ export class Swig {
      * swig.renderFile('./template.html', {});
      * // => output
      *
-     * @param  {string}   pathName    File location.
-     * @param  {object}   [locals={}] Template variable context.
-     * @param  {Function} [cb] Asyncronous callback function. If not provided, <var>compileFile will run syncronously.
-     * @return {string}             Rendered output.
+     * @param  pathName     File location.
+     * @param  [locals={}]  Template variable context.
+     * @param  [cb]         Asyncronous callback function. If not provided, <var>compileFile will run syncronously.
+     * @return {string}
      */
-    renderFile(pathName, locals, cb) {
+    public renderFile(pathName: string, locals: {} = {}, cb?) {
         if (cb) {
             this.compileFile(pathName, {}, function (err, fn) {
                 let result;
@@ -584,11 +580,11 @@ export class Swig {
      *
      * When compiling a source string, a file path should be specified in the options object in order for <var>extends, <var>include, and <var>import to work properly. Do this by adding <code data-language="js">{ filename: '/absolute/path/to/mytpl.html' }</code> to the options argument.
      *
-     * @param  {string}         source      Swig template source string.
-     * @param  {SwigOptions}    options     Swig options.
+     * @param  source      Swig template source string.
+     * @param  options     Swig options.
      * @return {function}                   Renderable function with keys for parent, blocks, and tokens.
      */
-    compile(source: string, options: SwigOptions = {}): TemplateCompiled {
+    public compile(source: string, options: SwigOptions = {}): TemplateCompiled {
         let key = options ? options.filename : null,
             cached = key ? this.cacheGet(key) : null,
             filters = this.filters,
@@ -628,8 +624,15 @@ export class Swig {
         return compiled.bind(this);
     }
 
-
-    compileFile(pathname: string, options: SwigOptions = {}, cb?: Function): Function {
+    /**
+     * Compile file into a renderable template function.
+     * 
+     * @param   pathname 
+     * @param   [options={}] 
+     * @param   [cb] 
+     * @returns {Function} 
+     */
+    public compileFile(pathname: string, options: SwigOptions = {}, cb?: Function): Function {
         let src, cached;
 
         pathname = this.options.loader.reslove(pathname, options.resolveFrom);
