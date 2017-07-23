@@ -6,41 +6,49 @@ import dateformatter from './dateformat';
 import parser, { ParseToken } from './parser';
 import { LexerToken } from './lexer';
 
-export type  TemplateCompiled = (locals?: {})=> string;
+export type TemplateCompiled = (locals?: {}) => string;
 export interface CacheOptions {
     get: (key: string) => TemplateCompiled;
     set: (key: string, val: TemplateCompiled) => boolean;
 }
 
 /**
- * Swig Options Object. This object can be passed to many of the API-level Swig methods to control various aspects of the engine. All keys are optional.
+ * Swig Options Object. 
+ * This object can be passed to many of the API-level Swig methods to control various aspects of the engine. 
+ * All keys are optional.
  * 
  * @export
  * @interface SwigOptions
  */
 export interface SwigOptions extends Object {
     /**
-     * Controls whether or not variable output will automatically be escaped for safe HTML output. Defaults to <code data-language="js">true</code>. Functions executed in variable statements will not be auto-escaped. Your application/functions should take care of their own auto-escaping.
+     * Controls whether or not variable output will automatically be escaped for safe HTML output. 
+     * Functions executed in variable statements will not be auto-escaped. 
+     * Your application/functions should take care of their own auto-escaping.
      * 
      * @type {boolean}
+     * @default true
      */
     autoescape?: boolean;
     /**
-     * Open and close controls for variables. Defaults to <code data-language="js">['{{', '}}']</code>.
+     * Open and close controls for variables.
      * 
      * @type {string[]}
+     * @default ['{{', '}}']
      */
     varControls?: string[];
     /**
-     * Open and close controls for tags. Defaults to <code data-language="js">['{%', '%}']</code>.
+     * Open and close controls for tags.
      * 
      * @type {string[]}
+     * @default ['{%', '%}']
      */
     tagControls?: string[];
     /**
-     * Open and close controls for comments. Defaults to <code data-language="js">['{#', '#}']</code>.
+     * Open and close controls for comments.
      * 
      * @type {string[]}
+     * @default ['{#', '#}']
      */
     cmtControls?: string[];
     /**
@@ -50,13 +58,14 @@ export interface SwigOptions extends Object {
      */
     locals?: {};
     /**
-     * Cache control for templates. Defaults to saving in <code data-language="js">'memory'</code>. Send <code data-language="js">false</code> to disable. Send an object with <code data-language="js">get</code> and <code data-language="js">set</code> functions to customize.
+     * Cache control for templates. Send false to disable. Send an object with get and set functions to customize.
      * 
-     * @type {boolean|string|CacheOptions}
+     * @type {boolean|CacheOptions}
+     * @default true
      */
-    cache?: boolean | string | CacheOptions;
+    cache?: boolean | CacheOptions;
     /**
-     * The method that Swig will use to load templates. Defaults to <var>swig.loaders.fs</var>.
+     * The method that Swig will use to load templates. Defaults to swig.loaders.fs.
      * 
      * @type {TemplateLoader.templateLoader}
      */
@@ -68,7 +77,7 @@ export interface SwigOptions extends Object {
      */
     resolveFrom?: string;
     /**
-     * Template file name
+     * Template file name. Don't send any value to this property.
      * 
      * @type {string}
      */
@@ -107,7 +116,7 @@ const defaultOptions: SwigOptions = {
      *   }
      * }); 
      */
-    cache: 'memory',
+    cache: true,
     /**
      * Configure Swig to use either the <var>swig.loaders.fs</var> or <var>swig.loaders.memory</var> template loader. Or, you can write your own!
      * For more information, please see the <a href="../loaders/">Template Loaders documentation</a>.
@@ -266,7 +275,7 @@ export class Swig {
             return;
         }
 
-        if (this.options.cache === 'memory') {
+        if (this.options.cache) {
             return this.cache[key];
         }
 
@@ -287,7 +296,7 @@ export class Swig {
             return;
         }
 
-        if (this.options.cache === 'memory') {
+        if (this.options.cache) {
             this.cache[key] = val;
             return;
         }
@@ -304,7 +313,7 @@ export class Swig {
      * @return {undefined}
      */
     public invalidateCache() {
-        if (this.options.cache === 'memory') {
+        if (this.options.cache) {
             this.cache = {};
         }
     }
