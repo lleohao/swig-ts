@@ -62,7 +62,7 @@ export interface SwigOptions extends Object {
      * The method that Swig will use to load templates. Defaults to swig.loaders.fs.
      * 
      */
-    loader?: TemplateLoader.templateLoader;
+    loader?: TemplateLoader;
     /**
      * Resolve path
      * 
