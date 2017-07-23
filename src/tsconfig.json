@@ -3,7 +3,6 @@
         "target": "es6",
         "module": "commonjs",
         "declaration": true,
-        "declarationDir": "../typings",
         "outDir": "../lib",
         "sourceMap": true,
 

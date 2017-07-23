@@ -3,10 +3,9 @@
   "version": "1.0.2",
   "description": "Use typescipt rewrite swig",
   "main": "lib/swig.js",
-  "types": "typings/swig.d.ts",
+  "types": "lib/swig.d.ts",
   "files": [
     "lib",
-    "typings",
     "README.MD"
   ],
   "scripts": {
