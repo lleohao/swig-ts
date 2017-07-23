@@ -4,14 +4,9 @@ import tags, { Tags, CompileFunction, ParseFunction } from './tags';
 import { fs, TemplateLoader } from './loaders';
 import dateformatter from './dateformat';
 import parser, { ParseToken } from './parser';
-import * as loaders from './loaders';
 import { LexerToken } from './lexer';
 
-
-export interface TemplateCompiled {
-    (locals?: {}): string;
-}
-
+export type  TemplateCompiled = (locals?: {})=> string;
 export interface CacheOptions {
     get: (key: string) => TemplateCompiled;
     set: (key: string, val: TemplateCompiled) => boolean;
@@ -21,7 +16,6 @@ export interface CacheOptions {
  * Swig Options Object. This object can be passed to many of the API-level Swig methods to control various aspects of the engine. All keys are optional.
  * 
  * @export
- * @memberof Swig
  * @interface SwigOptions
  */
 export interface SwigOptions extends Object {
@@ -29,63 +23,54 @@ export interface SwigOptions extends Object {
      * Controls whether or not variable output will automatically be escaped for safe HTML output. Defaults to <code data-language="js">true</code>. Functions executed in variable statements will not be auto-escaped. Your application/functions should take care of their own auto-escaping.
      * 
      * @type {boolean}
-     * @memberof SwigOptions
      */
     autoescape?: boolean;
     /**
      * Open and close controls for variables. Defaults to <code data-language="js">['{{', '}}']</code>.
      * 
      * @type {string[]}
-     * @memberof SwigOptions
      */
     varControls?: string[];
     /**
      * Open and close controls for tags. Defaults to <code data-language="js">['{%', '%}']</code>.
      * 
      * @type {string[]}
-     * @memberof SwigOptions
      */
     tagControls?: string[];
     /**
      * Open and close controls for comments. Defaults to <code data-language="js">['{#', '#}']</code>.
      * 
      * @type {string[]}
-     * @memberof SwigOptions
      */
     cmtControls?: string[];
     /**
      * Default variable context to be passed to <strong>all</strong> templates.
      * 
      * @type {object}
-     * @memberof SwigOptions
      */
     locals?: {};
     /**
      * Cache control for templates. Defaults to saving in <code data-language="js">'memory'</code>. Send <code data-language="js">false</code> to disable. Send an object with <code data-language="js">get</code> and <code data-language="js">set</code> functions to customize.
      * 
      * @type {boolean|string|CacheOptions}
-     * @memberof SwigOptions
      */
     cache?: boolean | string | CacheOptions;
     /**
      * The method that Swig will use to load templates. Defaults to <var>swig.loaders.fs</var>.
      * 
      * @type {TemplateLoader.templateLoader}
-     * @memberof SwigOptions
      */
     loader?: TemplateLoader.templateLoader;
     /**
      * Resolve path
      * 
      * @type {string}
-     * @memberof SwigOptions
      */
     resolveFrom?: string;
     /**
      * Template file name
      * 
      * @type {string}
-     * @memberof SwigOptions
      */
     filename?: string;
 }
@@ -93,7 +78,7 @@ export interface SwigOptions extends Object {
 
 /**
  * Swig version number as string.
- * @example 
+ * @example
  * if (swig.version === '1.0.1') { ... }
  */
 const version: string = '1.0.1';
@@ -149,7 +134,7 @@ let defaultInstance: Swig;
  * @return {string} Empty string
  * @private
  */
-function efn() { return '' };
+function efn() { return '' }
 
 function validateOptions(options: SwigOptions) {
     utils.each(['varControls', 'tagControls', 'cmtControls'], (key: string) => {
@@ -192,7 +177,7 @@ function validateOptions(options: SwigOptions) {
 const setDefaults = function (options: SwigOptions = {}): void {
     validateOptions(options);
     defaultInstance.options = utils.extend(defaultInstance.options, options);
-}
+};
 
 
 /**
@@ -227,8 +212,7 @@ export class Swig {
 
     /**
      * Creates an instance of Swig.
-     * @param {Swig.Options} opts 
-     * 
+     *
      * @memberOf Swig
      */
     constructor(opts: SwigOptions = {}) {
@@ -297,7 +281,6 @@ export class Swig {
      * @param {Object} options          Template function and tokens.
      * @param {string} val              Template function and tokens.
      * @returns 
-     * @memberof Swig
      */
     private cacheSet(key: string, options: SwigOptions, val: TemplateCompiled) {
         if (this.shouldCache(options)) {
@@ -320,7 +303,7 @@ export class Swig {
      *
      * @return {undefined}
      */
-    invalidateCache() {
+    public invalidateCache() {
         if (this.options.cache === 'memory') {
             this.cache = {};
         }
@@ -337,7 +320,6 @@ export class Swig {
      * 
      * @param {string} name                         Name of filter, used in templates. Will overwrite previously defined filters, if using same name.
      * @param {(input: string) => string} method    Function that acts against the input.
-     * @memberof Swig
      */
     setFilter(name: string, method: (input: string) => string): void {
         this.filters[name] = method;
@@ -346,7 +328,7 @@ export class Swig {
     /**
      * Add a custom tag. To expose your own extensions to compiled template code.
      * 
-     * For a more in-depth explanation of writing cutom
+     * For a more in-depth explanation of writing custom
      * @example
      * var tacotag = require('./tacotag');
      * swig.setTag('tacos', tacotag.parse, tacotag.compile, tacotag.ends, tacotag.blockLevel);
@@ -358,7 +340,6 @@ export class Swig {
      * @param {CompileFunction} compile            Method for compiling renderable output.
      * @param {boolean} [ends=false]        Whether or no this tag requires an end tag.
      * @param {boolean} [blockLevel=false]  If false, this tag will not be compiled outside of block tag when extending a parent template.
-     * @memberof Swig
      */
     setTag(name: string, parse: ParseFunction, compile: CompileFunction, ends: boolean = false, blockLevel: boolean = false) {
         this.tags[name] = {
@@ -392,7 +373,6 @@ export class Swig {
      * 
      * @param {string} source               Swig template source.
      * @param {SwigOptions} [options={}]    Swig options object.
-     * @memberof Swig
      */
     parse(source: string, options: SwigOptions = {}): ParseToken {
         validateOptions(options);
@@ -417,7 +397,6 @@ export class Swig {
      * 
      * @param {string} pathname             Full path to file to parse.
      * @param {SwigOptions} [options={}]    Swig optiosn object.
-     * @memberof Swig
      */
     parseFile(pathname: string, options: SwigOptions = {}) {
         let src;
@@ -453,8 +432,8 @@ export class Swig {
 
     /**
      * Import block-level tags to the token list that are not actual block tags.
-     * @param {array} blocks List of block-level tags.
-     * @param {array} tokens List of tokens to render.
+     * @param blocks List of block-level tags.
+     * @param tokens List of tokens to render.
      */
     private importNonBlocks(blocks, tokens) {
         let temp = [];
@@ -473,7 +452,6 @@ export class Swig {
      * @param {object} tokens               Parsed tokens from templates.
      * @param {SwigOptions} [options={}]    Swign options object.
      * @return {object}                     Parsed tokens from templates.
-     * @memberof Swig
      */
     private getParents(tokens, options: SwigOptions = {}) {
         let parentName = tokens.parent,
@@ -533,8 +511,7 @@ export class Swig {
     preCompile(source: string, options: SwigOptions): { tpl: Function, tokens: ParseToken } {
         let tokens = this.parse(source, options),
             parents = this.getParents(tokens, options),
-            tpl,
-            err;
+            tpl;
 
         if (parents.length) {
             tokens.tokens = this.remapBlocks(tokens.blocks, parents[0].tokens);
@@ -564,12 +541,11 @@ export class Swig {
      * swig.render('{{ tocas }}', {locals: {tacos: 'Tacos!!!'}});
      * // ==> Tacos!!!!
      * 
-     * @param {string} soruce               Swig template source string.
-     * @param {SwigOptions} [options={}]    Swig options object.
-     * @memberof Swig               
+     * @param source          Swig template string.
+     * @param [options={}]    Swig options object.
      */
-    render(soruce: string, options: SwigOptions = {}) {
-        return this.compile(soruce, options)();
+    render(source: string, options: SwigOptions = {}) {
+        return this.compile(source, options)();
     };
 
     /**
@@ -595,7 +571,7 @@ export class Swig {
     renderFile(pathName, locals, cb) {
         if (cb) {
             this.compileFile(pathName, {}, function (err, fn) {
-                var result;
+                let result;
 
                 if (err) {
                     cb(err);
@@ -634,12 +610,12 @@ export class Swig {
      *
      * When compiling a source string, a file path should be specified in the options object in order for <var>extends</var>, <var>include</var>, and <var>import</var> to work properly. Do this by adding <code data-language="js">{ filename: '/absolute/path/to/mytpl.html' }</code> to the options argument.
      *
-     * @param  {string} source    Swig template source string.
-     * @param  {SwigOpts} [options={}] Swig options object.
-     * @return {function}         Renderable function with keys for parent, blocks, and tokens.
+     * @param  {string}         source      Swig template source string.
+     * @param  {SwigOptions}    options     Swig options.
+     * @return {function}                   Renderable function with keys for parent, blocks, and tokens.
      */
-    compile(source: string, optiosn: SwigOptions = {}): TemplateCompiled {
-        let key = optiosn ? optiosn.filename : null,
+    compile(source: string, options: SwigOptions = {}): TemplateCompiled {
+        let key = options ? options.filename : null,
             cached = key ? this.cacheGet(key) : null,
             filters = this.filters,
             context,
@@ -650,9 +626,9 @@ export class Swig {
             return cached;
         }
 
-        context = this.getLocals(optiosn);
+        context = this.getLocals(options);
         contextLength = utils.keys(context).length;
-        pre = this.preCompile(source, optiosn);
+        pre = this.preCompile(source, options);
 
         function compiled(locals) {
             let lcls;
@@ -672,7 +648,7 @@ export class Swig {
         utils.extend(compiled, pre.tokes);
 
         if (key) {
-            this.cacheSet(key, optiosn, compiled);
+            this.cacheSet(key, options, compiled);
         }
 
         return compiled.bind(this);
@@ -713,7 +689,7 @@ export class Swig {
                 }
 
                 cb(err, compield);
-            })
+            });
             return;
         }
 
@@ -745,7 +721,7 @@ export class Swig {
     //     }
     //     return tpl(self, context, this.filters, utils, efn);
     // };
-};
+}
 
 defaultInstance = new Swig();
 
