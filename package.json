@@ -9,7 +9,7 @@
     "README.MD"
   ],
   "scripts": {
-    "build": "rimraf lib/* tsc -p ./src",
+    "build": "rimraf lib/* & tsc -p ./src",
     "dev": "tsc -p ./src -w",
     "prepublish": "npm run build",
     "pretest": "npm run build",
