@@ -84,15 +84,6 @@ export interface SwigOptions extends Object {
     filename?: string;
 }
 
-
-/**
- * Swig version number as string.
- * @example
- * if (swig.version === '1.0.1') { ... }
- */
-const version: string = '1.0.1';
-
-
 const defaultOptions: SwigOptions = {
     autoescape: true,
     varControls: ['{{', '}}'],
@@ -705,31 +696,6 @@ export class Swig {
         src = this.options.loader.load(pathname);
         return this.compile(src, options);
     }
-
-    /**
-     * Run a pre-compiled template function. This is most useful in the browser when you've pre-compiled your templates with the Swig command-line tool.
-     *
-     * @example
-     * $ swig compile ./mytpl.html --wrap-start="var mytpl = " > mytpl.js
-     * @example
-     * <script src="mytpl.js"></script>
-     * <script>
-     *   swig.run(mytpl, {});
-     *   // => "rendered template..."
-     * </script>
-     *
-     * @param  {function} tpl       Pre-compiled Swig template function. Use the Swig CLI to compile your templates.
-     * @param  {object} [locals={}] Template variable context.
-     * @param  {string} [filepath]  Filename used for caching the template.
-     * @return {string}             Rendered output.
-     */
-    // run(tpl, locals, filepath) {
-    //     var context = this.getLocals({ locals: locals });
-    //     if (filepath) {
-    //         this.cacheSet(filepath, {}, tpl);
-    //     }
-    //     return tpl(self, context, this.filters, utils, efn);
-    // };
 }
 
 defaultInstance = new Swig();
