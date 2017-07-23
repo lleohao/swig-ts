@@ -293,7 +293,7 @@ function reader(str: string): LexerToken {
  * @return {LexerToken[]}   Array of defined types, potentially stripped or replaced with more suitable content.
  * @private
  */
-const read = function (str: string): LexerToken[] {
+const read = (str: string): LexerToken[] => {
     let offset = 0,
         tokens = [],
         substr,
@@ -310,5 +310,5 @@ const read = function (str: string): LexerToken[] {
 }
 
 export default {
-    read: read
+    read
 }
