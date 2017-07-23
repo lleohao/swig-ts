@@ -1,9 +1,16 @@
 import { dirname, normalize, resolve } from 'path';
 import { readFileSync, readFile } from 'fs';
-
 import { TemplateLoader } from './index';
 
-export const fs = (basepath: string | null = '', encoding: string = 'utf8') => {
+/**
+ * Loads templates from the file system.
+ * 
+ * @alias swig.loaders.fs
+ * @param basepath  Path to the templates as string. Assigning this value allows you to use semi-absolute paths to templates instead of relative paths.
+ * @param encoding  Template encoding
+ * @return {TemplateLoader}
+ */
+export const fs = (basepath: string | null = '', encoding: string = 'utf8'): TemplateLoader => {
     basepath = (basepath) ? normalize(basepath) : null;
 
     const vet: TemplateLoader = {
@@ -16,10 +23,6 @@ export const fs = (basepath: string | null = '', encoding: string = 'utf8') => {
             return resolve(from, to);
         },
         load: (identifier, cb) => {
-            if ((cb && !readFile) || readFileSync) {
-                throw new Error('Unable to find file ' + identifier + ' because there is no filesystem to read from.');
-            }
-
             if (cb) {
                 readFile(identifier, encoding, cb);
                 return;

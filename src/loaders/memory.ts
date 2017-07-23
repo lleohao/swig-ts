@@ -1,6 +1,5 @@
 import { dirname, normalize, resolve } from 'path';
 import utils from '../utils';
-
 import { TemplateLoader } from './index';
 
 /**
@@ -17,8 +16,8 @@ export interface MemoryInterface {
  * Loads templates from a provided object mapping.
  * 
  * @export
- * @param {MemoryInterface} mapping  Hash object with template paths as keys and template sources as values.
- * @param {(string|null)} basepath Path to the templates as string. Assigning this value allows you to use semi-absolute paths to templates instead of relative paths.
+ * @param mapping    Hash object with template paths as keys and template sources as values.
+ * @param basepath   Path to the templates as string. Assigning this value allows you to use semi-absolute paths to templates instead of relative paths.
  * @returns 
  */
 export const memory = (mapping: MemoryInterface, basepath?: string | null) => {
@@ -34,11 +33,8 @@ export const memory = (mapping: MemoryInterface, basepath?: string | null) => {
             return resolve(from, to);
         },
         load: (pathname, cb) => {
-            let src: string, paths: string[];
-
-            paths = [pathname, pathname.replace(/^(\/|\\)/, '')];
-
-            src = mapping[paths[0]] || mapping[paths[1]];
+            const paths = [pathname, pathname.replace(/^(\/|\\)/, '')];
+            const src = mapping[paths[0]] || mapping[paths[1]];
 
             if (!src) {
                 utils.throwError('Unable to find template "' + pathname + '".');
