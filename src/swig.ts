@@ -190,21 +190,6 @@ export class Swig {
     }
 
     /**
-     * Get combined locals context.
-     * 
-     * @private
-     * @param [options] 
-     * @returns {object}
-     */
-    private getLocals(options: SwigOptions = {}): object {
-        if (!options || !options.locals) {
-            return this.options.locals;
-        }
-
-        return utils.extend({}, this.options.locals, options.locals);
-    }
-
-    /**
      * Determine whether caching is enabled via the options provided and/or default.
      * 
      * @private
@@ -323,6 +308,21 @@ export class Swig {
     public setExtension(name: string, object): void {
         this.extensions[name] = object;
     };
+
+    /**
+     * Get combined locals context.
+     * 
+     * @private
+     * @param [options] 
+     * @returns {object}
+     */
+    private getLocals(options: SwigOptions = {}): object {
+        if (!options || !options.locals) {
+            return this.options.locals;
+        }
+
+        return utils.extend({}, this.options.locals, options.locals);
+    }
 
     /**
      * Parse a given source string into tokens.
