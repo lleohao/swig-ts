@@ -147,14 +147,14 @@ const throwError = function (message: string, line?: string | number, file?: str
 
 
 export default {
-    isArray: isArray,
-    each: each,
-    some: some,
-    map: map,
-    keys: keys,
-    extend: extend,
-    strip: strip,
-    startWith: startWith,
-    endsWith: endsWith,
-    throwError: throwError
+    isArray,
+    each,
+    some,
+    map,
+    keys,
+    extend,
+    strip,
+    startWith,
+    endsWith,
+    throwError
 }
