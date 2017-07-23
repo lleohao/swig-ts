@@ -10,10 +10,11 @@
     "README.MD"
   ],
   "scripts": {
-    "test": "npm test",
-    "build": "tsc -p ./src",
+    "build": "rimraf lib/* tsc -p ./src",
     "dev": "tsc -p ./src -w",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "pretest": "npm run build",
+    "test": "./node_modules/.bin/mocha -r ./node_modules/ts-node/register ./tests/*.ts"
   },
   "repository": {
     "type": "git",
@@ -32,8 +33,20 @@
   },
   "homepage": "https://github.com/lleohao/swig-tp#readme",
   "devDependencies": {
-    "@types/node": "^7.0.29",
-    "typescript": "^2.3.4",
-    "tslint": "^5.5.0"
+    "@types/mocha": "^2.2.41",
+    "@types/node": "<7.0.0",
+    "@types/should": "^8.3.0",
+    "cz-conventional-changelog": "^2.0.0",
+    "mocha": "^3.4.2",
+    "rimraf": "^2.6.1",
+    "should": "^11.2.1",
+    "ts-node": "^3.2.1",
+    "tslint": "^5.5.0",
+    "typescript": "^2.3.4"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
