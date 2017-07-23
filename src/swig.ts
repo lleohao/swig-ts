@@ -283,7 +283,12 @@ export class Swig {
      * @param [ends=false]          Whether or no this tag requires an end tag.
      * @param [blockLevel=false]    If false, this tag will not be compiled outside of block tag when extending a parent template.
      */
-    public setTag(name: string, parse: ParseFunction, compile: CompileFunction, ends: boolean = false, blockLevel: boolean = false) {
+    public setTag(
+        name: string,
+        parse: ParseFunction,
+        compile: CompileFunction,
+        ends: boolean = false,
+        blockLevel: boolean = false) {
         this.tags[name] = {
             parse: parse,
             compile: compile,
@@ -293,7 +298,8 @@ export class Swig {
     }
 
     /**
-     * Add extensions for custom tags. This allows any custom tag to access a globally available methods via a special globally available object, <var>_ext, in templates.
+     * Add extensions for custom tags. 
+     * This allows any custom tag to access a globally available methods via a special globally available object, _ext, in templates.
      *
      * @example
      * swig.setExtension('trans', function (v) { return translate(v); });
@@ -305,7 +311,7 @@ export class Swig {
      * @param  name   Key name of the extension. Accessed via <code data-language="js">_ext[name]</code>.
      * @param  object The method, value, or object that should be available via the given name.
      */
-    public setExtension(name: string, object): void {
+    public setExtension(name: string, object: (value: any) => string): void {
         this.extensions[name] = object;
     };
 
@@ -317,7 +323,7 @@ export class Swig {
      * @returns {object}
      */
     private getLocals(options: SwigOptions = {}): object {
-        if (!options || !options.locals) {
+        if (!options.locals) {
             return this.options.locals;
         }
 
@@ -573,7 +579,7 @@ export class Swig {
      */
     public compile(source: string, options: SwigOptions = {}): TemplateCompiled {
         let key = options ? options.filename : null,
-            cached = key ? this.cacheGet(key) : null,
+            cached = key ? this.cacheGet(key, options) : null,
             filters = this.filters,
             context,
             contextLength,
