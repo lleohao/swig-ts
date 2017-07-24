@@ -12,7 +12,7 @@ interface Parsers {
     [key: string]: Function;
 }
 
-export interface ParseToken {
+export interface ParsedToken {
     name: string;
     parent: string,
     tokens: LexerToken[],
@@ -416,35 +416,37 @@ export class TokenParser {
     }
 }
 
-const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tags, filters: Filters): ParseToken {
+const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tags, filters: Filters): ParsedToken {
     source = source.replace(/\r\n/g, '\n');
     let escape = opts.autoescape,
-        tagOpen = (<string[]>opts.tagControls)[0],
-        tagClose = (<string[]>opts.tagControls)[1],
-        varOpen = (<string[]>opts.varControls)[0],
-        varClose = (<string[]>opts.varControls)[1],
+        [tagOpen, tagClose] = opts.tagControls,
+        [varOpen, varClose] = opts.varControls,
+        [cmtOpen, cmtClose] = opts.cmtControls,
         escapedTagOpen = escapeRegExp(tagOpen),
         escapedTagClose = escapeRegExp(tagClose),
         escapedVarOpen = escapeRegExp(varOpen),
         escapedVarClose = escapeRegExp(varClose),
+        escapeCmtOpen = escapeRegExp(cmtOpen),
+        escapeCmtClose = escapeRegExp(cmtClose),
         tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*-?|-?\\s*-?' + escapedTagClose + '$', 'g'),
         tagStripBefore = new RegExp('^' + escapedTagOpen + '-'),
         tagStripAfter = new RegExp('-' + escapedTagClose + '$'),
         varStrip = new RegExp('^' + escapedVarOpen + '-?\\s*-?|-?\\s*-?' + escapedVarClose + '$', 'g'),
         varStripBefore = new RegExp('^' + escapedVarOpen + '-'),
         varStripAfter = new RegExp('-' + escapedVarClose + '$'),
-        cmtOpen = (<string[]>opts.cmtControls)[0],
-        cmtClose = (<string[]>opts.cmtControls)[1],
+
         anyChar = '[\\s\\S]*?',
         splitter = new RegExp(
             '(' +
             escapedTagOpen + anyChar + escapedTagClose + '|' +
             escapedVarOpen + anyChar + escapedVarClose + '|' +
-            escapeRegExp(cmtOpen) + anyChar + escapeRegExp(cmtClose) +
+            escapeCmtOpen + anyChar + escapeCmtClose +
             ')'
         ),
         line = 1,
+        // TODO: 应该是中间产物
         stack: any[] = [],
+        // TODO: 应该不是一个字符串
         parent: string = null,
         tokens = [],
         blocks = {},
@@ -565,20 +567,21 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * Loop over the source, split via the tag/var/comment regular expression splitter.
      * Send each chunl to the appropriate parser.
      */
-    utils.each(source.split(splitter), (chunk: string) => {
+
+    source.split(splitter).forEach((chunk) => {
         let token, lines, stripPrev, prevToken, prevChildToken;
 
         if (!chunk) {
             return;
         }
 
-        // Is a variable?
-        if (!inRaw && utils.startWith(chunk, varOpen) && utils.endsWith(chunk, varClose)) {
+        if (!inRaw && chunk.startsWith(varOpen) && chunk.endsWith(varClose)) {
+            // Is a variable.
             stripPrev = varStripBefore.test(chunk);
             stripNext = varStripBefore.test(chunk);
             token = parseVariable(chunk.replace(varStrip, ''), line);
-            // Is a tag?
-        } else if (utils.startWith(chunk, tagOpen) && utils.endsWith(chunk, tagClose)) {
+        } else if (chunk.startsWith(tagOpen) && chunk.endsWith(tagClose)) {
+            // Is a tag
             stripPrev = tagStripAfter.test(chunk);
             stripNext = tagStripBefore.test(chunk);
             token = parseTag(chunk.replace(tagStrip, ''), line);
@@ -592,15 +595,15 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             if (inRaw && !token) {
                 token = chunk;
             }
-            // Is as content string?
         } else if (inRaw || (!utils.startWith(chunk, cmtOpen) && !utils.endsWith(chunk, cmtClose))) {
+            // Is content string
             token = (stripNext) ? chunk.replace(/^\s*/, '') : chunk;
             stripNext = false;
         } else if (utils.startWith(chunk, cmtOpen) && utils.endsWith(chunk, cmtClose)) {
             return;
         }
 
-        // Did this tag ask to strip previous whitespace? <code>{%- ... %}</code> or <code>{{- ... }}</code>
+        // Did this tag ask to strip previous whitespace? {%- ... %} or {{- ... }}
         if (stripPrev && tokens.length) {
             prevToken = tokens.pop();
             if (typeof prevToken === 'string') {
