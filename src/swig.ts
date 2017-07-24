@@ -487,7 +487,7 @@ export class Swig {
      * @param source    Swig template string.
      * @param options   Swig options.
      */
-    preCompile(source: string, options: SwigOptions): { tpl: Function, tokens: ParseToken } {
+    private preCompile(source: string, options: SwigOptions): { tpl: Function, tokens: ParseToken } {
         let tokens = this.parse(source, options),
             parents = this.getParents(tokens, options),
             tpl;
