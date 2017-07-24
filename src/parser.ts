@@ -428,10 +428,10 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         escapedVarClose = escapeRegExp(varClose),
         escapeCmtOpen = escapeRegExp(cmtOpen),
         escapeCmtClose = escapeRegExp(cmtClose),
-        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*-?|-?\\s*-?' + escapedTagClose + '$', 'g'),
+        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*|\\s*-?' + escapedTagClose + '$', 'g'),
         tagStripBefore = new RegExp('^' + escapedTagOpen + '-'),
         tagStripAfter = new RegExp('-' + escapedTagClose + '$'),
-        varStrip = new RegExp('^' + escapedVarOpen + '-?\\s*-?|-?\\s*-?' + escapedVarClose + '$', 'g'),
+        varStrip = new RegExp('^' + escapedVarOpen + '-?\\s*|\\s*-?' + escapedVarClose + '$', 'g'),
         varStripBefore = new RegExp('^' + escapedVarOpen + '-'),
         varStripAfter = new RegExp('-' + escapedVarClose + '$'),
 
@@ -461,12 +461,9 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * @return {VarToken}   Parsed variable token object.
      */
     function parseVariable(str: string, line: number): { compile: () => string } {
-        let tokens = lexer.read(utils.strip(str)),
-            parser: TokenParser,
-            out;
-
-        parser = new TokenParser(tokens, filters, escape, line, opts.filename);
-        out = parser.parse().join('');
+        const tokens = lexer.read(str);
+        const parser = new TokenParser(tokens, filters, escape, line, opts.filename);
+        const out = parser.parse().join('');
 
         if (parser.state.length) {
             utils.throwError(`Unable to parse "${str}"`, line, opts.filename);
