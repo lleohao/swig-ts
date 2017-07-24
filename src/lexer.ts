@@ -78,7 +78,7 @@ const rules = [
     {
         type: TYPES.WHITESAPCE,
         regex: [
-            /^\s/
+            /^\s+/
         ]
     },
     {
@@ -253,17 +253,17 @@ const rules = [
 function reader(str: string): LexerToken {
     let matched;
 
-    utils.some(rules, function (rule: any) {
-        return utils.some(rule.regex, function (regex: RegExp) {
-            let match = str.match(regex),
-                normalized;
+    rules.some((rule) => {
+        return rule.regex.some((regex) => {
+            const match = str.match(regex);
+            let normalized;
 
             if (!match) {
                 return;
             }
 
-            normalized = match[rule.idx || 0].replace(/\s*$./, '');
-            normalized = ((rule as Object).hasOwnProperty('replace') && rule.replace.hasOwnProperty(normalized)) ? rule.replace[normalized] : normalized;
+            normalized = match[rule['idx'] || 0].replace(/\s*$/, '');
+            normalized = ((rule as Object).hasOwnProperty('replace') && rule['replace'].hasOwnProperty(normalized)) ? rule['replace'][normalized] : normalized;
 
             matched = {
                 match: normalized,
@@ -272,8 +272,8 @@ function reader(str: string): LexerToken {
             };
 
             return true;
-        });
-    });
+        })
+    })
 
     if (!matched) {
         matched = {
