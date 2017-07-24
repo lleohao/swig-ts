@@ -386,6 +386,7 @@ export class TokenParser {
     checkMatch(match: string[]): string {
         let temp = match[0], result;
 
+        // Verify that the variable is present
         function checkDot(ctx: string) {
             let c = ctx + temp,
                 m = match,
@@ -403,11 +404,17 @@ export class TokenParser {
             return build;
         }
 
+        // Read the variable
         function buildDot(ctx: string) {
             return '(' + checkDot(ctx) + '?' + ctx + match.join('.') + ' : "")';
         }
-        result = '(' + checkDot('_ctx.') + ' ? ' + buildDot('_ctx.') + ' : ' + buildDot('') + ')';
+        result = '(' +
+            checkDot('_ctx.') + ' ? ' +
+            buildDot('_ctx.') + ' : ' +  // Read local variable
+            buildDot('') +               // Read global variable
+            ')';
 
+        // If variable = null, will return ''
         return '(' + result + ' !== null ? ' + result + ' : ' + '"" )';
     }
 }

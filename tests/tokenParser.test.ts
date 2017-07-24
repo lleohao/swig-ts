@@ -61,6 +61,7 @@ const _ctx = {
     }
 };
 const age = 22;
+const _null = null;
 
 describe('checkDot test', () => {
     it('can check string whitout the dot', () => {
@@ -105,6 +106,10 @@ describe('buildDot test', () => {
 describe('checkMatch test', () => {
     it('read global value', () => {
         should(eval(checkMatch(['age']))).be.eql(22);
+    });
+
+    it('read global value, will set null to ""', () => {
+        should(eval(checkMatch(['_null']))).be.eql('');
     });
 
     it('read global undefined value', () => {
