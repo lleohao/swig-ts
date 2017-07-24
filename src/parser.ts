@@ -140,7 +140,6 @@ export class TokenParser {
             temp;
 
         if (fn && typeof fn === 'function') {
-            // 调整解析顺序
             if (!fn.call(this, token)) {
                 return;
             }
@@ -393,11 +392,11 @@ export class TokenParser {
                 build = '';
 
             build = `(typeof ${c} !== "undefined" && ${c} !== null`;
-            utils.each(m, function (v: any, i: any) {
+            m.forEach((v, i) => {
                 if (i === 0) {
                     return;
                 }
-                build += ` && ${c}.${v} !== undefiend && ${c}.${v} !== null`;
+                build += ` && ${c}.${v} !== undefined && ${c}.${v} !== null`;
                 c += '.' + v;
             });
             build += ')';
