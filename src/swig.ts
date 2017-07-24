@@ -378,7 +378,7 @@ export class Swig {
      * @param pathname          Full path to file to parse.
      * @param [options={}]      Swig options object.
      */
-    private parseFile(pathname: string, options: SwigOptions = {}): ParseToken {
+    public parseFile(pathname: string, options: SwigOptions = {}): ParseToken {
         let src;
 
         pathname = this.options.loader.reslove(pathname, options.resolveFrom);
