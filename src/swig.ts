@@ -1,9 +1,9 @@
 import utils from './utils';
-import _filters, { Filters } from './filters';
+import filters, { Filters } from './filters';
 import tags, { Tags, CompileFunction, ParseFunction } from './tags';
 import { fs, TemplateLoader } from './loaders';
 import dateformatter from './dateformat';
-import parser, { ParseToken } from './parser';
+import parser, { ParsedToken } from './parser';
 import { LexerToken } from './lexer';
 
 export type TemplateCompiled = (locals?: {}) => string;
@@ -62,7 +62,7 @@ export interface SwigOptions extends Object {
      * The method that Swig will use to load templates. Defaults to swig.loaders.fs.
      * 
      */
-    loader?: TemplateLoader.templateLoader;
+    loader?: TemplateLoader;
     /**
      * Resolve path
      * 
@@ -201,7 +201,7 @@ export class Swig {
         }
         this.cache = {};
         this.extensions = {};
-        this.filters = _filters;
+        this.filters = filters;
         this.tags = tags;
     }
 
@@ -351,10 +351,10 @@ export class Swig {
      * 
      * @param source          Swig template source.
      * @param [options={}]    Swig options object.
-     * @return {ParseToken}
+     * @return {ParsedToken}
      * @private
      */
-    private parse(source: string, options: SwigOptions = {}): ParseToken {
+    private parse(source: string, options: SwigOptions = {}): ParsedToken {
         validateOptions(options);
         let locals = this.getLocals(options),
             opts = {},
@@ -378,7 +378,7 @@ export class Swig {
      * @param pathname          Full path to file to parse.
      * @param [options={}]      Swig options object.
      */
-    private parseFile(pathname: string, options: SwigOptions = {}): ParseToken {
+    public parseFile(pathname: string, options: SwigOptions = {}): ParsedToken {
         let src;
 
         pathname = this.options.loader.reslove(pathname, options.resolveFrom);
@@ -397,7 +397,7 @@ export class Swig {
      * @param blocks 
      * @param tokens 
      */
-    private remapBlocks(blocks: {}, tokens: ParseToken): LexerToken[] {
+    private remapBlocks(blocks: {}, tokens: ParsedToken): LexerToken[] {
         return <LexerToken[]>utils.map(tokens, (token) => {
             let args = token.args ? token.args.join('') : '';
             if (token.name === 'block' && blocks[args]) {
@@ -487,7 +487,7 @@ export class Swig {
      * @param source    Swig template string.
      * @param options   Swig options.
      */
-    preCompile(source: string, options: SwigOptions): { tpl: Function, tokens: ParseToken } {
+    private preCompile(source: string, options: SwigOptions): { tpl: Function, tokens: ParsedToken } {
         let tokens = this.parse(source, options),
             parents = this.getParents(tokens, options),
             tpl;

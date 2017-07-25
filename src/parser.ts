@@ -12,17 +12,26 @@ interface Parsers {
     [key: string]: Function;
 }
 
-export interface ParseToken {
+export interface ParsedToken {
     name: string;
     parent: string,
     tokens: LexerToken[],
     blocks: { [key: string]: any }
 }
 
+interface Token {
+    name?: string;
+    args?: string[];
+    content?: Token[];
+    block?: boolean;
+    ends?: boolean;
+    compile: () => string
+}
+
 /**
  * Makes a string safe for regular expression.
  * 
- * @param {string} str 
+ * @param  str 
  * @returns 
  * @private
  */
@@ -42,7 +51,7 @@ export class TokenParser {
     filename: string;
     line: number;
     filters: Filters;
-    escape: boolean;
+    escape: boolean | 'html' | 'js';
     private parsers: Parsers = {};
     private tokens: LexerToken[];
     private isLast: boolean = false;
@@ -51,12 +60,12 @@ export class TokenParser {
 
     /**
      * Creates an instance of TokenParser.
-     * @param {LexerToken[]}    tokens      Pre-split tokens read by the Lexer.
-     * @param {Filters}         filters     Keyed object of filters that may be applied to variables.
-     * @param {boolean}         autoescape  Whether or not this shuould be autoescaped.
-     * @param {number}          line        Beginning line number for the firsr token. 
-     * @param {string}          [filename]  Name of the file being parsed.
-     * @memberof TokenParser
+     * 
+     * @param tokens      Pre-split tokens read by the Lexer.
+     * @param filters     Keyed object of filters that may be applied to variables.
+     * @param autoescape  Whether or not this shuould be autoescaped.
+     * @param line        Beginning line number for the firsr token. 
+     * @param [filename]  Name of the file being parsed.
      */
     constructor(tokens: LexerToken[], filters: Filters, autoescape: boolean, line: number, filename?: string) {
         this.line = line;
@@ -72,18 +81,18 @@ export class TokenParser {
         if (this.parsers.start) {
             this.parsers.start.call(this);
         }
-        utils.each(tokens, function (token, i) {
-            let prevToken = tokens[i - 1];
-            this.isLast = (i === tokens.length - 1);
+        tokens.forEach((token, i) => {
+            let prevToken = token[i - 1];
+            this.isLast = (i === (tokens.length - 1));
             if (prevToken) {
-                while (prevToken.type === _t.WHITESAPCE) {
+                while (prevToken.type === _t.WHITESPACE) {
                     i -= 1;
                     prevToken = tokens[i - 1];
                 }
             }
             this.prevToken = prevToken;
             this.parseToken(token);
-        }, this)
+        });
         if (this.parsers.end) {
             this.parsers.end.call(this);
         }
@@ -119,9 +128,8 @@ export class TokenParser {
      *   this.out.push('something at the end of your args');
      * });
      * 
-     * @param {string}      type    Token type ID. Found in the Lexer.  
-     * @param {Function}    fn      Callbacak function. Return true to continue executing the default parsing function.
-     * @memberof TokenParser
+     * @param type    Token type ID. Found in the Lexer.  
+     * @param fn      Callbacak function. Return true to continue executing the default parsing function.
      */
     on(type: number | '*' | 'end' | 'start', fn: (token: LexerToken) => void) {
         this.parsers[type] = fn;
@@ -130,7 +138,6 @@ export class TokenParser {
     /**
      * Parse a single token.
      * 
-     * @param {LexerToken} token 
      * @memberof TokenParser
      */
     parseToken(token: LexerToken) {
@@ -141,8 +148,8 @@ export class TokenParser {
             lastState = (this.state.length) ? this.state[this.state.length - 1] : null,
             temp;
 
+        // The parse of the tag ends here
         if (fn && typeof fn === 'function') {
-            // 调整解析顺序
             if (!fn.call(this, token)) {
                 return;
             }
@@ -167,7 +174,7 @@ export class TokenParser {
         }
 
         switch (token.type) {
-            case _t.WHITESAPCE:
+            case _t.WHITESPACE:
                 break;
 
             case _t.STRING:
@@ -356,9 +363,9 @@ export class TokenParser {
 
     /**
      * Parse variable token
-     * @param {LexerToken}  token       Lexer token object. 
-     * @param {string}      match       Shortcut for token match.
-     * @param {number[]}    lastState   Lexer tokemn type state.
+     * @param token       Lexer token object. 
+     * @param match       Shortcut for token match.
+     * @param lastState   Lexer token type state.
      */
     parseVar(token: LexerToken, match: string, lastState: number) {
         const matchArr = match.split('.');
@@ -384,67 +391,69 @@ export class TokenParser {
      * Return contextual dot-check string for match.
      * 
      * 
-     * @param {string} match 
-     * @memberof TokenParser
+     * @param match 
      */
     checkMatch(match: string[]): string {
         let temp = match[0], result;
 
+        // Verify that the variable is present
         function checkDot(ctx: string) {
             let c = ctx + temp,
                 m = match,
                 build = '';
 
             build = `(typeof ${c} !== "undefined" && ${c} !== null`;
-            utils.each(m, function (v: any, i: any) {
+            m.forEach((v, i) => {
                 if (i === 0) {
                     return;
                 }
-                build += ` && ${c}.${v} !== undefiend && ${c}.${v} !== null`;
+                build += ` && ${c}.${v} !== undefined && ${c}.${v} !== null`;
                 c += '.' + v;
             });
             build += ')';
             return build;
         }
 
+        // Read the variable
         function buildDot(ctx: string) {
             return '(' + checkDot(ctx) + '?' + ctx + match.join('.') + ' : "")';
         }
         result = '(' + checkDot('_ctx.') + ' ? ' + buildDot('_ctx.') + ' : ' + buildDot('') + ')';
 
+        // If variable = null, will return ''
         return '(' + result + ' !== null ? ' + result + ' : ' + '"" )';
     }
 }
 
-const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tags, filters: Filters): ParseToken {
+const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tags, filters: Filters): ParsedToken {
     source = source.replace(/\r\n/g, '\n');
     let escape = opts.autoescape,
-        tagOpen = (<string[]>opts.tagControls)[0],
-        tagClose = (<string[]>opts.tagControls)[1],
-        varOpen = (<string[]>opts.varControls)[0],
-        varClose = (<string[]>opts.varControls)[1],
+        [tagOpen, tagClose] = opts.tagControls,
+        [varOpen, varClose] = opts.varControls,
+        [cmtOpen, cmtClose] = opts.cmtControls,
         escapedTagOpen = escapeRegExp(tagOpen),
         escapedTagClose = escapeRegExp(tagClose),
         escapedVarOpen = escapeRegExp(varOpen),
         escapedVarClose = escapeRegExp(varClose),
-        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*-?|-?\\s*-?' + escapedTagClose + '$', 'g'),
+        escapeCmtOpen = escapeRegExp(cmtOpen),
+        escapeCmtClose = escapeRegExp(cmtClose),
+        tagStrip = new RegExp('^' + escapedTagOpen + '-?\\s*|\\s*-?' + escapedTagClose + '$', 'g'),
         tagStripBefore = new RegExp('^' + escapedTagOpen + '-'),
         tagStripAfter = new RegExp('-' + escapedTagClose + '$'),
-        varStrip = new RegExp('^' + escapedVarOpen + '-?\\s*-?|-?\\s*-?' + escapedVarClose + '$', 'g'),
+        varStrip = new RegExp('^' + escapedVarOpen + '-?\\s*|\\s*-?' + escapedVarClose + '$', 'g'),
         varStripBefore = new RegExp('^' + escapedVarOpen + '-'),
         varStripAfter = new RegExp('-' + escapedVarClose + '$'),
-        cmtOpen = (<string[]>opts.cmtControls)[0],
-        cmtClose = (<string[]>opts.cmtControls)[1],
+
         anyChar = '[\\s\\S]*?',
         splitter = new RegExp(
             '(' +
             escapedTagOpen + anyChar + escapedTagClose + '|' +
             escapedVarOpen + anyChar + escapedVarClose + '|' +
-            escapeRegExp(cmtOpen) + anyChar + escapeRegExp(cmtClose) +
+            escapeCmtOpen + anyChar + escapeCmtClose +
             ')'
         ),
         line = 1,
-        stack: any[] = [],
+        stack: Token[] = [],
         parent: string = null,
         tokens = [],
         blocks = {},
@@ -454,17 +463,14 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
     /**
      * Parse a variable.
      * 
-     * @param {string} str  String contents of the variable, between <i>{{</i> and <i>}}</i>
-     * @param {number} line The line number that this variable starts on.
+     * @param str  String contents of the variable, between <i>{{</i> and <i>}}</i>
+     * @param line The line number that this variable starts on.
      * @return {VarToken}   Parsed variable token object.
      */
     function parseVariable(str: string, line: number): { compile: () => string } {
-        let tokens = lexer.read(utils.strip(str)),
-            parser: TokenParser,
-            out;
-
-        parser = new TokenParser(tokens, filters, escape, line, opts.filename);
-        out = parser.parse().join('');
+        const tokens = lexer.read(str);
+        const parser = new TokenParser(tokens, filters, escape, line, opts.filename);
+        const out = parser.parse().join('');
 
         if (parser.state.length) {
             utils.throwError(`Unable to parse "${str}"`, line, opts.filename);
@@ -480,14 +486,14 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
     /**
      * Parse a tag.
      * 
-     * @param {string} str  String contents of the variable, between <i>{%</i> and <i>%}</i>
-     * @param {number} line The line number that this variable starts on.
+     * @param str  String contents of the variable, between <i>{%</i> and <i>%}</i>
+     * @param line The line number that this variable starts on.
      * @return {TagToken} Parsed token object.
      */
     function parseTag(str: string, line: number) {
-        let tokens, parser, chunks, tagName, tag, args, last;
+        let tokens: LexerToken[], parser: TokenParser, chunks: string[], tagName: string, tag, args, last;
 
-        if (utils.startWith(str, 'end')) {
+        if (str.startsWith('end')) {
             last = stack[stack.length - 1];
             if (last && last.name === str.split(/\s+/)[0].replace(/^end/, '') && last.ends) {
                 switch (last.name) {
@@ -512,16 +518,37 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         }
 
         chunks = str.split(/\s+(.+)?/);
-        tagName = <string>chunks.shift();
+        tagName = chunks.shift();
 
         if (!tags.hasOwnProperty(tagName)) {
             utils.throwError(`Unexpected tag "${str}"`, line, opts.filename);
         }
 
-        tokens = lexer.read(utils.strip(chunks.join('')));
+        tokens = lexer.read(chunks.join(' ').trim());
         parser = new TokenParser(tokens, filters, false, line, opts.filename);
         tag = tags[tagName];
 
+        /**
+         * Define custom parsing methods for your tag.
+         * @callback parse
+         *
+         * @example
+         * exports.parse = function (str, line, parser, types, options, swig) {
+         *   parser.on('start', function () {
+         *     // ...
+         *   });
+         *   parser.on(types.STRING, function (token) {
+         *     // ...
+         *   });
+         * };
+         *
+         * @param str       The full token string of the tag.
+         * @param line      The line number that this tag appears on.
+         * @param parser    A TokenParser instance.
+         * @param stack     The current stack of open tags.
+         * @param opts      Swig Options Object.
+         * @param swig      The Swig instance (gives acces to loaders, parsers, etc)
+         */
         if (!tag.parse(chunks[1], line, parser, stack, opts, swig)) {
             utils.throwError('Unexpected tag "' + tagName + '"', line, opts.filename);
         }
@@ -550,7 +577,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
     /**
      * Strip the whitespace from the previous tokes, if it is a string.
      * 
-     * @param {*} token     Parsed token.
+     * @param token     Parsed token.
      * @returns {object}    If token was a string, trailing whitespace will be stripped.
      */
     function stripPrevToken(token: any) {
@@ -565,20 +592,20 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * Loop over the source, split via the tag/var/comment regular expression splitter.
      * Send each chunl to the appropriate parser.
      */
-    utils.each(source.split(splitter), (chunk: string) => {
+    source.split(splitter).forEach((chunk) => {
         let token, lines, stripPrev, prevToken, prevChildToken;
 
         if (!chunk) {
             return;
         }
 
-        // Is a variable?
-        if (!inRaw && utils.startWith(chunk, varOpen) && utils.endsWith(chunk, varClose)) {
+        if (!inRaw && chunk.startsWith(varOpen) && chunk.endsWith(varClose)) {
+            // Is a variable.
             stripPrev = varStripBefore.test(chunk);
             stripNext = varStripBefore.test(chunk);
             token = parseVariable(chunk.replace(varStrip, ''), line);
-            // Is a tag?
-        } else if (utils.startWith(chunk, tagOpen) && utils.endsWith(chunk, tagClose)) {
+        } else if (chunk.startsWith(tagOpen) && chunk.endsWith(tagClose)) {
+            // Is a tag
             stripPrev = tagStripAfter.test(chunk);
             stripNext = tagStripBefore.test(chunk);
             token = parseTag(chunk.replace(tagStrip, ''), line);
@@ -592,15 +619,15 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             if (inRaw && !token) {
                 token = chunk;
             }
-            // Is as content string?
         } else if (inRaw || (!utils.startWith(chunk, cmtOpen) && !utils.endsWith(chunk, cmtClose))) {
+            // Is content string
             token = (stripNext) ? chunk.replace(/^\s*/, '') : chunk;
             stripNext = false;
         } else if (utils.startWith(chunk, cmtOpen) && utils.endsWith(chunk, cmtClose)) {
             return;
         }
 
-        // Did this tag ask to strip previous whitespace? <code>{%- ... %}</code> or <code>{{- ... }}</code>
+        // Did this tag ask to strip previous whitespace? {%- ... %} or {{- ... }}
         if (stripPrev && tokens.length) {
             prevToken = tokens.pop();
             if (typeof prevToken === 'string') {
@@ -642,11 +669,11 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
 
 /**
  * Compile an array of tokens.
- * @param  {Token[]} template     An array of template tokens.
- * @param  {Templates[]} parents  Array of parent templates.
- * @param  {SwigOpts} [options]   Swig options object.
- * @param  {string} [blockName]   Name of the current block context.
- * @return {string}               Partial for a compiled JavaScript method that will output a rendered template.
+ * @param  template         An array of template tokens.
+ * @param  parents          Array of parent templates.
+ * @param  [options]        Swig options object.
+ * @param  [blockName]      Name of the current block context.
+ * @return {string}         Partial for a compiled JavaScript method that will output a rendered template.
  */
 const compile = function (template, parents, options: SwigOptions, blockName?: string) {
     let out = '',
@@ -654,7 +681,6 @@ const compile = function (template, parents, options: SwigOptions, blockName?: s
 
     utils.each(tokens, function (token) {
         let o;
-        // 纯文字在这里填充进去
         if (typeof token === 'string') {
             out += '_output += "' + token.replace(/\\/g, '\\\\').replace(/\n|\r/g, '\\n').replace(/"/g, '\\"') + '";\n';
             return;
@@ -672,12 +698,12 @@ const compile = function (template, parents, options: SwigOptions, blockName?: s
          *   return '_output += "fallback";\n';
          * };
          *
-         * @param {parserCompiler} compiler
-         * @param {array} [args] Array of parsed arguments on the for the token.
-         * @param {array} [content] Array of content within the token.
-         * @param {array} [parents] Array of parent templates for the current template context.
-         * @param {SwigOpts} [options] Swig Options Object
-         * @param {string} [blockName] Name of the direct block parent, if any.
+         * @param compiler
+         * @param [args] Array of parsed arguments on the for the token.
+         * @param [content] Array of content within the token.
+         * @param [parents] Array of parent templates for the current template context.
+         * @param [options] Swig Options Object
+         * @param [blockName] Name of the direct block parent, if any.
          */
         o = token.compile(compile, token.args ? token.args.slice(0) : [], token.content ? token.content.slice(0) : [], parents, options, blockName);
         out += o || '';

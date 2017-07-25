@@ -15,7 +15,7 @@ export interface LexerToken {
  */
 export enum TYPES {
     /** Whitesapce */
-    WHITESAPCE = 0,
+    WHITESPACE = 0,
     /** Plain string 纯文字 */
     STRING = 1,
     /** Variable filter */
@@ -76,9 +76,9 @@ export enum TYPES {
 
 const rules = [
     {
-        type: TYPES.WHITESAPCE,
+        type: TYPES.WHITESPACE,
         regex: [
-            /^\s/
+            /^\s+/
         ]
     },
     {
@@ -143,7 +143,7 @@ const rules = [
             /^(and|or)\s+/
         ],
         idx: 1,
-        repalce: {
+        replace: {
             'and': '&&',
             'or': '||'
         }
@@ -154,7 +154,7 @@ const rules = [
             /^(===|==|\!==|\!=|<=|<|>=|>|in\s|gte\s|gt\s|lte\s|lt\s)\s*/
         ],
         idx: 1,
-        repalce: {
+        replace: {
             'gte': '>=',
             'gt': '>',
             'lte': '<=',
@@ -164,7 +164,7 @@ const rules = [
     {
         type: TYPES.ASSIGNMENT,
         regex: [
-            /^(=|\+=|-=|\*=|\/=)/,
+            /^(=|\+=|-=|\*=|\/=)/
         ]
     },
     {
@@ -173,7 +173,7 @@ const rules = [
             /^\!\s*/,
             /^not\s+/
         ],
-        repalce: {
+        replace: {
             'not': '!'
         }
     },
@@ -253,17 +253,17 @@ const rules = [
 function reader(str: string): LexerToken {
     let matched;
 
-    utils.some(rules, function (rule: any) {
-        return utils.some(rule.regex, function (regex: RegExp) {
-            let match = str.match(regex),
-                normalized;
+    rules.some((rule) => {
+        return rule.regex.some((regex) => {
+            const match = str.match(regex);
+            let normalized;
 
             if (!match) {
                 return;
             }
 
-            normalized = match[rule.idx || 0].replace(/\s*$./, '');
-            normalized = ((rule as Object).hasOwnProperty('replace') && rule.replace.hasOwnProperty(normalized)) ? rule.replace[normalized] : normalized;
+            normalized = match[rule['idx'] || 0].replace(/\s*$/, '');
+            normalized = ((rule as Object).hasOwnProperty('replace') && rule['replace'].hasOwnProperty(normalized)) ? rule['replace'][normalized] : normalized;
 
             matched = {
                 match: normalized,
@@ -272,8 +272,8 @@ function reader(str: string): LexerToken {
             };
 
             return true;
-        });
-    });
+        })
+    })
 
     if (!matched) {
         matched = {
