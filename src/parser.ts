@@ -82,7 +82,7 @@ export class TokenParser {
             this.parsers.start.call(this);
         }
         utils.each(tokens, (token, i) => {
-            let prevToken = token[i - 1];
+            let prevToken = tokens[i - 1];
             this.isLast = (i === (tokens.length - 1));
             if (prevToken) {
                 while (prevToken.type === _t.WHITESPACE) {

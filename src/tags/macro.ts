@@ -45,6 +45,14 @@ const parse: ParseFunction = function (str, line, parser) {
         this.out.push(token.match);
     });
 
+    parser.on(types.FUNCTION, function (token) {
+        if (!name) {
+            name = token.match;
+            this.out.push(name);
+            this.state.push(types.FUNCTION);
+        }
+    });
+
     parser.on(types.FUNCTIONEMPTY, function (token) {
         if (!name) {
             name = token.match;
