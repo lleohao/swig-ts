@@ -110,31 +110,29 @@ describe('Separate instances', () => {
     });
 });
 
-// describe('swog.compileFile', () => {
-//     const test = __dirname + '/cases/extend_1.test.html';
+describe('swog.compileFile', () => {
+    const test = __dirname + '/cases/extend_1.test.html';
 
-//     console.log(statSync(test));
+    let swig: Swig;
+    beforeEach(() => {
+        swig = new Swig();
+    });
+    afterEach(() => {
+        swig = null;
+    });
 
-//     let swig: Swig;
-//     beforeEach(() => {
-//         swig = new Swig();
-//     });
-//     afterEach(() => {
-//         swig = null;
-//     });
+    it('can run syncronously', () => {
+        should(swig.compileFile(test)()).be.ok();
+    });
 
-//     it('can run syncronously', () => {
-//         should(swig.compileFile(test)()).be.ok();
-//     });
-
-//     it('can run asynchronously', (done) => {
-//         // Run twice to ensure cached result uses the callback [gh-291]
-//         swig.compileFile(test, {}, (err, fn) => {
-//             should(fn).is.a.Function();
-//             should(swig.compileFile(test, {}, (err, fn) => {
-//                 should(fn).is.a.Function();
-//                 done();
-//             }));
-//         });
-//     });
-// })
+    it('can run asynchronously', (done) => {
+        // Run twice to ensure cached result uses the callback [gh-291]
+        swig.compileFile(test, {}, (err, fn) => {
+            should(fn).is.a.Function();
+            should(swig.compileFile(test, {}, (err, fn) => {
+                should(fn).is.a.Function();
+                done();
+            }));
+        });
+    });
+})

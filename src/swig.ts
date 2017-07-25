@@ -454,7 +454,7 @@ export class Swig {
             parent = this.cacheGet(parentFile, options) || this.parseFile(parentFile, utils.extend({}, options, { filename: parentFile }));
             parentName = parent.parent;
 
-            if (parentFile.indexOf(parentFile) !== -1) {
+            if (parentFiles.indexOf(parentFile) !== -1) {
                 throw new Error(`Illegal circular ectends of "${parentFile}".`);
             }
             parentFiles.push(parentFile);
