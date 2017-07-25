@@ -418,7 +418,9 @@ export class Swig {
             temp.push(block);
         });
         utils.each(temp.reverse(), (block) => {
-            tokens.unshift(block);
+            if (block.name !== 'block') {
+                tokens.unshift(block);
+            }
         });
     }
 

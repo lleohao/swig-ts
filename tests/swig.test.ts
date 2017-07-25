@@ -168,19 +168,17 @@ describe('swig.renderFile', () => {
         s = null;
     });
 
-    // it('can run syncronously', function () {
-    //     console.log(s.readFile(test));
+    it('can run syncronously', function () {
+        should(s.renderFile(test))
+            .be.eql(expectation);
+    });
 
-    //     should(s.renderFile(test))
-    //         .be.eql(expectation);
-    // });
-
-    // it('can run asynchronously', function (done) {
-    //     s.renderFile(test, {}, function (err, fn) {
-    //         should(fn).be.eql(expectation);
-    //         done();
-    //     });
-    // });
+    it('can run asynchronously', function (done) {
+        s.renderFile(test, {}, function (err, fn) {
+            should(fn).be.eql(expectation);
+            done();
+        });
+    });
 
     it('can use callbacks with errors', function (done) {
         s.renderFile(__dirname + '/cases/not-existing', {}, function (err, out) {
