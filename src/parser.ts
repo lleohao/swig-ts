@@ -19,6 +19,14 @@ export interface ParsedToken {
     blocks: { [key: string]: any }
 }
 
+interface Token {
+    name?: string,
+    args?: string[],
+    content?: Token[],
+    block?: boolean;
+    compile: () => string
+}
+
 /**
  * Makes a string safe for regular expression.
  * 
@@ -443,9 +451,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             ')'
         ),
         line = 1,
-        // TODO: 应该是中间产物
-        stack: any[] = [],
-        // TODO: 应该不是一个字符串
+        stack: Token[] = [],
         parent: string = null,
         tokens = [],
         blocks = {},
@@ -563,7 +569,6 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * Loop over the source, split via the tag/var/comment regular expression splitter.
      * Send each chunl to the appropriate parser.
      */
-
     source.split(splitter).forEach((chunk) => {
         let token, lines, stripPrev, prevToken, prevChildToken;
 
