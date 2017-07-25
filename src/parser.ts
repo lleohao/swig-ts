@@ -12,20 +12,20 @@ interface Parsers {
     [key: string]: Function;
 }
 
-export interface ParsedToken {
-    name: string;
-    parent: string,
-    tokens: LexerToken[],
-    blocks: { [key: string]: any }
-}
-
-interface Token {
+export interface Token {
     name?: string;
     args?: string[];
     content?: Token[];
     block?: boolean;
     ends?: boolean;
     compile: () => string
+}
+
+export interface ParsedToken {
+    name: string;
+    parent: string,
+    tokens: Token[],
+    blocks: { [key: string]: Token }
 }
 
 /**
@@ -81,7 +81,7 @@ export class TokenParser {
         if (this.parsers.start) {
             this.parsers.start.call(this);
         }
-        tokens.forEach((token, i) => {
+        utils.each(tokens, (token, i) => {
             let prevToken = token[i - 1];
             this.isLast = (i === (tokens.length - 1));
             if (prevToken) {
@@ -403,7 +403,7 @@ export class TokenParser {
                 build = '';
 
             build = `(typeof ${c} !== "undefined" && ${c} !== null`;
-            m.forEach((v, i) => {
+            utils.each(m, (v, i) => {
                 if (i === 0) {
                     return;
                 }
@@ -509,7 +509,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             }
 
             if (!inRaw) {
-                utils.throwError(`Unexpected end of tag ${str.replace(/^end/, '')}`, line, opts.filename);
+                utils.throwError(`Unexpected end of tag "${str.replace(/^end/, '')}"`, line, opts.filename);
             }
         }
 
@@ -592,8 +592,8 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * Loop over the source, split via the tag/var/comment regular expression splitter.
      * Send each chunl to the appropriate parser.
      */
-    source.split(splitter).forEach((chunk) => {
-        let token, lines, stripPrev, prevToken, prevChildToken;
+    utils.each(source.split(splitter), (chunk) => {
+        let token: Token, lines, stripPrev, prevToken, prevChildToken;
 
         if (!chunk) {
             return;
@@ -619,11 +619,11 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             if (inRaw && !token) {
                 token = chunk;
             }
-        } else if (inRaw || (!utils.startWith(chunk, cmtOpen) && !utils.endsWith(chunk, cmtClose))) {
+        } else if (inRaw || (!chunk.startsWith(cmtOpen) && !chunk.endsWith(cmtClose))) {
             // Is content string
             token = (stripNext) ? chunk.replace(/^\s*/, '') : chunk;
             stripNext = false;
-        } else if (utils.startWith(chunk, cmtOpen) && utils.endsWith(chunk, cmtClose)) {
+        } else if (chunk.startsWith(cmtOpen) && chunk.endsWith(cmtClose)) {
             return;
         }
 
@@ -675,7 +675,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
  * @param  [blockName]      Name of the current block context.
  * @return {string}         Partial for a compiled JavaScript method that will output a rendered template.
  */
-const compile = function (template, parents, options: SwigOptions, blockName?: string) {
+const compile = function (template: ParsedToken, parents: ParsedToken[], options: SwigOptions, blockName?: string) {
     let out = '',
         tokens = utils.isArray(template) ? template : template.tokens;
 

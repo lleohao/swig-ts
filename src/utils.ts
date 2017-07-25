@@ -5,25 +5,6 @@ export interface Enumerable {
     [kye: number]: any;
 }
 
-const strip = function (input: string): string {
-    return input.replace(/^\s+|\s+$/g, '');
-}
-
-const startWith = function (input: string, prefix: string): boolean {
-    return input.indexOf(prefix) === 0;
-}
-
-/**
- * Test if a string ends with a given suffix.
- * @param  {string} str    String to test against.
- * @param  {string} suffix Suffix to check for.
- * @return {boolean}
- */
-const endsWith = function (str: string, suffix: string) {
-    return str.indexOf(suffix, str.length - suffix.length) !== -1;
-};
-
-
 const each = function (obj: Enumerable, fn: Function, context?) {
     let i, l;
 
@@ -153,8 +134,5 @@ export default {
     map,
     keys,
     extend,
-    strip,
-    startWith,
-    endsWith,
     throwError
 }

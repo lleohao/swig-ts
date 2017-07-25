@@ -1,5 +1,17 @@
+<a name="1.0.5"></a>
+## [1.0.5](https://github.com/lleohao/swig-tp/compare/v1.0.4...v1.0.5) (2017-07-25)
+
+
+### Bug Fixes
+
+* **swig:** Fix getParents error. ([eb19b07](https://github.com/lleohao/swig-tp/commit/eb19b07))
+* **swig:** Fix import block tag error. ([b94bccf](https://github.com/lleohao/swig-tp/commit/b94bccf))
+* **swig:** Fix interface error. ([408a159](https://github.com/lleohao/swig-tp/commit/408a159))
+
+
+
 <a name="1.0.4"></a>
-## 1.0.4 (2017-07-25)
+## [1.0.4](https://github.com/lleohao/swig-tp/compare/ffcfebd...v1.0.4) (2017-07-25)
 
 
 ### Bug Fixes
@@ -24,3 +36,6 @@
 ### Performance Improvements
 
 * **parser:** Change template syntax. ([558f015](https://github.com/lleohao/swig-tp/commit/558f015))
+
+
+

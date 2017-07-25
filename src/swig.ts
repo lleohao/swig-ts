@@ -1,9 +1,9 @@
 import utils from './utils';
 import filters, { Filters } from './filters';
 import tags, { Tags, CompileFunction, ParseFunction } from './tags';
-import { fs, TemplateLoader } from './loaders';
+import { fs, memory, TemplateLoader, MemoryInterface } from './loaders';
 import dateformatter from './dateformat';
-import parser, { ParsedToken } from './parser';
+import parser, { ParsedToken, Token } from './parser';
 import { LexerToken } from './lexer';
 
 export type TemplateCompiled = (locals?: {}) => string;
@@ -108,23 +108,20 @@ const defaultOptions: SwigOptions = {
      * Or, you can write your own!
      * 
      * @example
-     * FIXME: 想个更好的方式定义loader
+     * // Default, FileSystem loader
+     * swig.setDefaults({ loader: swig.loaders.fs() });
+     * @example
+     * // FileSystem loader allowing a base path
+     * // With this, you don't use relative URLs in your template references
+     * swig.setDefaults({ loader: swig.loaders.fs(__dirname + '/templates') });
+     * @example
      * // Memory Loader
      * swig.setDefaults({ loader: swig.loaders.memory({
      *   layout: '{% block foo %}{% endblock %}',
      *   page1: '{% extends "layout" %}{% block foo %}Tacos!{% endblock %}'
      * })}); 
      */
-    loader: undefined,
-    /*
-     * Set fileSystem loader allowing a base path.
-     * 
-     * @example
-     * // FileSystem loader allowing a base path
-     * // With this, you don't use relative URLs in your template references
-     * swig.setDefaults({ templates: __dirname + '/templates' });
-     */
-    templates: ''
+    loader: fs()
 };
 
 /**
@@ -140,7 +137,7 @@ function efn() { return '' }
  * @param {SwigOptions} options 
  */
 function validateOptions(options: SwigOptions) {
-    ['varControls', 'tagControls', 'cmtControls'].forEach((key) => {
+    utils.each(['varControls', 'tagControls', 'cmtControls'], (key) => {
         if (!options.hasOwnProperty(key)) {
             return;
         }
@@ -150,7 +147,7 @@ function validateOptions(options: SwigOptions) {
             throw new Error(`Options "${key}" open and close controls must not be the same.`);
         }
 
-        (value as string[]).forEach((value, index) => {
+        utils.each(value, (value, index) => {
             if (value.length < 2) {
                 throw new Error(`Optiosn "${key}" ${(index === 0) ? 'open ' : 'close'} control must be at least 2 characters. Saw "${value}" instead.`);
             }
@@ -196,9 +193,6 @@ export class Swig {
     constructor(opts: SwigOptions = {}) {
         validateOptions(opts);
         this.options = utils.extend({}, defaultOptions, opts);
-        if (this.options.loader === undefined) {
-            this.options.loader = fs(this.options.templates);
-        }
         this.cache = {};
         this.extensions = {};
         this.filters = filters;
@@ -299,12 +293,15 @@ export class Swig {
      * @param [ends=false]          Whether or no this tag requires an end tag.
      * @param [blockLevel=false]    If false, this tag will not be compiled outside of block tag when extending a parent template.
      */
-    public setTag(
-        name: string,
-        parse: ParseFunction,
-        compile: CompileFunction,
-        ends: boolean = false,
-        blockLevel: boolean = false) {
+    public setTag(name: string, parse: ParseFunction, compile: CompileFunction, ends: boolean = false, blockLevel: boolean = false) {
+        if (typeof parse !== 'function') {
+            throw new Error(`Tag "${name}" parse method is not a valid function.`);
+        }
+
+        if (typeof compile !== 'function') {
+            throw new Error(`Tag "${name}" compile method is not a valid function.`);
+        }
+
         this.tags[name] = {
             parse: parse,
             compile: compile,
@@ -397,8 +394,8 @@ export class Swig {
      * @param blocks 
      * @param tokens 
      */
-    private remapBlocks(blocks: {}, tokens: ParsedToken): LexerToken[] {
-        return <LexerToken[]>utils.map(tokens, (token) => {
+    private remapBlocks(blocks: {}, tokens: Token[]): Token[] {
+        return utils.map(tokens, (token) => {
             let args = token.args ? token.args.join('') : '';
             if (token.name === 'block' && blocks[args]) {
                 token = blocks[args];
@@ -421,7 +418,9 @@ export class Swig {
             temp.push(block);
         });
         utils.each(temp.reverse(), (block) => {
-            tokens.unshift(block);
+            if (block.name !== 'block') {
+                tokens.unshift(block);
+            }
         });
     }
 
@@ -433,7 +432,7 @@ export class Swig {
      * @param [options={}]    Swign options object.
      * @return {any[]}       Parsed tokens from templates.
      */
-    private getParents(tokens, options: SwigOptions = {}): any[] {
+    private getParents(tokens: ParsedToken, options: SwigOptions = {}): ParsedToken[] {
         let parentName = tokens.parent,
             parentFiles = [],
             parents = [],
@@ -451,7 +450,7 @@ export class Swig {
             parent = this.cacheGet(parentFile, options) || this.parseFile(parentFile, utils.extend({}, options, { filename: parentFile }));
             parentName = parent.parent;
 
-            if (parentFile.indexOf(parentFile) !== -1) {
+            if (parentFiles.indexOf(parentFile) !== -1) {
                 throw new Error(`Illegal circular ectends of "${parentFile}".`);
             }
             parentFiles.push(parentFile);
@@ -685,5 +684,9 @@ export class Swig {
 }
 
 export default {
-    setDefaultTZOffset
+    setDefaultTZOffset,
+    loaders: {
+        fs: fs,
+        memory: memory
+    }
 }
