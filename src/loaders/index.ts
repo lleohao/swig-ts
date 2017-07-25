@@ -1,5 +1,5 @@
 export { fs } from './filesystem';
-export { memory } from './memory';
+export { memory, MemoryInterface } from './memory';
 
 /**
  * Swig is able to accept custom template loaders written by you.

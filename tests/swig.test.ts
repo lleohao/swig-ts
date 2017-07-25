@@ -1,6 +1,6 @@
 import * as should from 'should';
-import { Swig } from '../lib/swig';
-import { statSync } from 'fs';
+import swig, { Swig } from '../lib/swig';
+import { statSync, readFileSync } from 'fs';
 
 describe('Options', () => {
     let swig: Swig;
@@ -111,7 +111,7 @@ describe('Separate instances', () => {
 });
 
 describe('swog.compileFile', () => {
-    const test = __dirname + '/cases/extend_1.test.html';
+    const test = __dirname + '/cases/extends_1.test.html';
 
     let swig: Swig;
     beforeEach(() => {
@@ -133,6 +133,59 @@ describe('swog.compileFile', () => {
                 should(fn).is.a.Function();
                 done();
             }));
+        });
+    });
+
+    it('can use callback with errors', function (done) {
+        let errorTest = __dirname + '/cases-error/extends-non-existent.test.html';
+        swig.compileFile(errorTest, {}, function (err) {
+            should(err.code).be.eql('ENOENT');
+            done();
+        });
+    });
+});
+
+
+describe('swig.renderFile', () => {
+    let test, expectation, s;
+
+    it('can use callback with errors occurred at the time of rendering', function (done) {
+        const s = new Swig({ loader: swig.loaders.memory({ 'error.html': '{{ foo() }}' }) });
+
+        s.renderFile('error.html', { foo: function () { throw new Error('bunk'); } }, function (err, out) {
+            should(err.message).be.eql('bunk');
+            done();
+        });
+    });
+
+    test = __dirname + '/cases/extends_1.test.html';
+    expectation = readFileSync(test.replace('test.html', 'expectation.html'), 'utf8');
+
+    beforeEach(() => {
+        s = new Swig();
+    });
+    afterEach(() => {
+        s = null;
+    });
+
+    // it('can run syncronously', function () {
+    //     console.log(s.readFile(test));
+
+    //     should(s.renderFile(test))
+    //         .be.eql(expectation);
+    // });
+
+    // it('can run asynchronously', function (done) {
+    //     s.renderFile(test, {}, function (err, fn) {
+    //         should(fn).be.eql(expectation);
+    //         done();
+    //     });
+    // });
+
+    it('can use callbacks with errors', function (done) {
+        s.renderFile(__dirname + '/cases/not-existing', {}, function (err, out) {
+            should(err.code).be.eql('ENOENT');
+            done();
         });
     });
 })

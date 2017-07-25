@@ -1,7 +1,7 @@
 import utils from './utils';
 import filters, { Filters } from './filters';
 import tags, { Tags, CompileFunction, ParseFunction } from './tags';
-import { fs, TemplateLoader } from './loaders';
+import { fs, memory, TemplateLoader, MemoryInterface } from './loaders';
 import dateformatter from './dateformat';
 import parser, { ParsedToken, Token } from './parser';
 import { LexerToken } from './lexer';
@@ -108,23 +108,20 @@ const defaultOptions: SwigOptions = {
      * Or, you can write your own!
      * 
      * @example
-     * FIXME: 想个更好的方式定义loader
+     * // Default, FileSystem loader
+     * swig.setDefaults({ loader: swig.loaders.fs() });
+     * @example
+     * // FileSystem loader allowing a base path
+     * // With this, you don't use relative URLs in your template references
+     * swig.setDefaults({ loader: swig.loaders.fs(__dirname + '/templates') });
+     * @example
      * // Memory Loader
      * swig.setDefaults({ loader: swig.loaders.memory({
      *   layout: '{% block foo %}{% endblock %}',
      *   page1: '{% extends "layout" %}{% block foo %}Tacos!{% endblock %}'
      * })}); 
      */
-    loader: undefined,
-    /*
-     * Set fileSystem loader allowing a base path.
-     * 
-     * @example
-     * // FileSystem loader allowing a base path
-     * // With this, you don't use relative URLs in your template references
-     * swig.setDefaults({ templates: __dirname + '/templates' });
-     */
-    templates: ''
+    loader: fs()
 };
 
 /**
@@ -196,9 +193,6 @@ export class Swig {
     constructor(opts: SwigOptions = {}) {
         validateOptions(opts);
         this.options = utils.extend({}, defaultOptions, opts);
-        if (this.options.loader === undefined) {
-            this.options.loader = fs(this.options.templates);
-        }
         this.cache = {};
         this.extensions = {};
         this.filters = filters;
@@ -688,5 +682,9 @@ export class Swig {
 }
 
 export default {
-    setDefaultTZOffset
+    setDefaultTZOffset,
+    loaders: {
+        fs: fs,
+        memory: memory
+    }
 }
