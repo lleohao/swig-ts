@@ -3,7 +3,7 @@ import filters, { Filters } from './filters';
 import tags, { Tags, CompileFunction, ParseFunction } from './tags';
 import { fs, TemplateLoader } from './loaders';
 import dateformatter from './dateformat';
-import parser, { ParsedToken } from './parser';
+import parser, { ParsedToken, Token } from './parser';
 import { LexerToken } from './lexer';
 
 export type TemplateCompiled = (locals?: {}) => string;
@@ -397,8 +397,8 @@ export class Swig {
      * @param blocks 
      * @param tokens 
      */
-    private remapBlocks(blocks: {}, tokens: ParsedToken): LexerToken[] {
-        return <LexerToken[]>utils.map(tokens, (token) => {
+    private remapBlocks(blocks: {}, tokens: Token[]): Token[] {
+        return utils.map(tokens, (token) => {
             let args = token.args ? token.args.join('') : '';
             if (token.name === 'block' && blocks[args]) {
                 token = blocks[args];
@@ -433,7 +433,7 @@ export class Swig {
      * @param [options={}]    Swign options object.
      * @return {any[]}       Parsed tokens from templates.
      */
-    private getParents(tokens, options: SwigOptions = {}): any[] {
+    private getParents(tokens: ParsedToken, options: SwigOptions = {}): ParsedToken[] {
         let parentName = tokens.parent,
             parentFiles = [],
             parents = [],

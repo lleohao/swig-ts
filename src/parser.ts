@@ -12,20 +12,20 @@ interface Parsers {
     [key: string]: Function;
 }
 
-export interface ParsedToken {
-    name: string;
-    parent: string,
-    tokens: LexerToken[],
-    blocks: { [key: string]: any }
-}
-
-interface Token {
+export interface Token {
     name?: string;
     args?: string[];
     content?: Token[];
     block?: boolean;
     ends?: boolean;
     compile: () => string
+}
+
+export interface ParsedToken {
+    name: string;
+    parent: string,
+    tokens: Token[],
+    blocks: { [key: string]: Token }
 }
 
 /**
@@ -593,7 +593,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * Send each chunl to the appropriate parser.
      */
     utils.each(source.split(splitter), (chunk) => {
-        let token, lines, stripPrev, prevToken, prevChildToken;
+        let token: Token, lines, stripPrev, prevToken, prevChildToken;
 
         if (!chunk) {
             return;
@@ -675,7 +675,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
  * @param  [blockName]      Name of the current block context.
  * @return {string}         Partial for a compiled JavaScript method that will output a rendered template.
  */
-const compile = function (template, parents, options: SwigOptions, blockName?: string) {
+const compile = function (template: ParsedToken, parents: ParsedToken[], options: SwigOptions, blockName?: string) {
     let out = '',
         tokens = utils.isArray(template) ? template : template.tokens;
 
