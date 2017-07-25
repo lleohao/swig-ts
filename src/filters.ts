@@ -282,7 +282,7 @@ const groupBy = function (input: any, key: string): object {
 
     const out = {};
 
-    input.forEach((value) => {
+    utils.each(input, (value) => {
         if (!value.hasOwnProperty(key)) {
             return;
         }
@@ -627,7 +627,7 @@ const uniq = function (input: any[]): any[] | '' {
         return '';
     }
 
-    input.forEach((v) => {
+    utils.each(input, (v) => {
         if (result.indexOf(v) === -1) {
             result.push(v);
         }

@@ -81,7 +81,7 @@ export class TokenParser {
         if (this.parsers.start) {
             this.parsers.start.call(this);
         }
-        tokens.forEach((token, i) => {
+        utils.each(tokens, (token, i) => {
             let prevToken = token[i - 1];
             this.isLast = (i === (tokens.length - 1));
             if (prevToken) {
@@ -403,7 +403,7 @@ export class TokenParser {
                 build = '';
 
             build = `(typeof ${c} !== "undefined" && ${c} !== null`;
-            m.forEach((v, i) => {
+            utils.each(m, (v, i) => {
                 if (i === 0) {
                     return;
                 }
@@ -592,7 +592,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * Loop over the source, split via the tag/var/comment regular expression splitter.
      * Send each chunl to the appropriate parser.
      */
-    source.split(splitter).forEach((chunk) => {
+    utils.each(source.split(splitter), (chunk) => {
         let token, lines, stripPrev, prevToken, prevChildToken;
 
         if (!chunk) {

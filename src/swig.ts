@@ -140,7 +140,7 @@ function efn() { return '' }
  * @param {SwigOptions} options 
  */
 function validateOptions(options: SwigOptions) {
-    ['varControls', 'tagControls', 'cmtControls'].forEach((key) => {
+    utils.each(['varControls', 'tagControls', 'cmtControls'], (key) => {
         if (!options.hasOwnProperty(key)) {
             return;
         }
@@ -150,7 +150,7 @@ function validateOptions(options: SwigOptions) {
             throw new Error(`Options "${key}" open and close controls must not be the same.`);
         }
 
-        (value as string[]).forEach((value, index) => {
+        utils.each(value, (value, index) => {
             if (value.length < 2) {
                 throw new Error(`Optiosn "${key}" ${(index === 0) ? 'open ' : 'close'} control must be at least 2 characters. Saw "${value}" instead.`);
             }
