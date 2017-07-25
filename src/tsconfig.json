@@ -6,7 +6,6 @@
         "outDir": "../lib",
         "sourceMap": true,
 
-        "noImplicitThis": false,
-        "strictNullChecks": false
+        "noImplicitThis": false
     }
 }

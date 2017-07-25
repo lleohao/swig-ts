@@ -299,12 +299,15 @@ export class Swig {
      * @param [ends=false]          Whether or no this tag requires an end tag.
      * @param [blockLevel=false]    If false, this tag will not be compiled outside of block tag when extending a parent template.
      */
-    public setTag(
-        name: string,
-        parse: ParseFunction,
-        compile: CompileFunction,
-        ends: boolean = false,
-        blockLevel: boolean = false) {
+    public setTag(name: string, parse: ParseFunction, compile: CompileFunction, ends: boolean = false, blockLevel: boolean = false) {
+        if (typeof parse !== 'function') {
+            throw new Error(`Tag "${name}" parse method is not a valid function.`);
+        }
+
+        if (typeof compile !== 'function') {
+            throw new Error(`Tag "${name}" compile method is not a valid function.`);
+        }
+
         this.tags[name] = {
             parse: parse,
             compile: compile,

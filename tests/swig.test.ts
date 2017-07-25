@@ -2,7 +2,7 @@ import * as should from 'should';
 import { Swig } from '../lib/swig';
 import { statSync } from 'fs';
 
-describe('options', () => {
+describe('Options', () => {
     let swig: Swig;
     beforeEach(() => {
         swig = new Swig();
@@ -101,7 +101,7 @@ describe('options', () => {
     });
 })
 
-describe('separate instances', () => {
+describe('Separate instances', () => {
     it('properly autoescapes', () => {
         const a = new Swig({ autoescape: false }),
             b = new Swig();

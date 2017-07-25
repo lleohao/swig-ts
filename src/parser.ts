@@ -509,7 +509,7 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             }
 
             if (!inRaw) {
-                utils.throwError(`Unexpected end of tag ${str.replace(/^end/, '')}`, line, opts.filename);
+                utils.throwError(`Unexpected end of tag "${str.replace(/^end/, '')}"`, line, opts.filename);
             }
         }
 
