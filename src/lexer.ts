@@ -15,7 +15,7 @@ export interface LexerToken {
  */
 export enum TYPES {
     /** Whitesapce */
-    WHITESAPCE = 0,
+    WHITESPACE = 0,
     /** Plain string 纯文字 */
     STRING = 1,
     /** Variable filter */
@@ -76,7 +76,7 @@ export enum TYPES {
 
 const rules = [
     {
-        type: TYPES.WHITESAPCE,
+        type: TYPES.WHITESPACE,
         regex: [
             /^\s+/
         ]
@@ -143,7 +143,7 @@ const rules = [
             /^(and|or)\s+/
         ],
         idx: 1,
-        repalce: {
+        replace: {
             'and': '&&',
             'or': '||'
         }
@@ -154,7 +154,7 @@ const rules = [
             /^(===|==|\!==|\!=|<=|<|>=|>|in\s|gte\s|gt\s|lte\s|lt\s)\s*/
         ],
         idx: 1,
-        repalce: {
+        replace: {
             'gte': '>=',
             'gt': '>',
             'lte': '<=',
@@ -164,7 +164,7 @@ const rules = [
     {
         type: TYPES.ASSIGNMENT,
         regex: [
-            /^(=|\+=|-=|\*=|\/=)/,
+            /^(=|\+=|-=|\*=|\/=)/
         ]
     },
     {
@@ -173,7 +173,7 @@ const rules = [
             /^\!\s*/,
             /^not\s+/
         ],
-        repalce: {
+        replace: {
             'not': '!'
         }
     },

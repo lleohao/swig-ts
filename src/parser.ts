@@ -76,7 +76,7 @@ export class TokenParser {
             let prevToken = token[i - 1];
             this.isLast = (i === (tokens.length - 1));
             if (prevToken) {
-                while (prevToken.type === _t.WHITESAPCE) {
+                while (prevToken.type === _t.WHITESPACE) {
                     i -= 1;
                     prevToken = tokens[i - 1];
                 }
@@ -164,7 +164,7 @@ export class TokenParser {
         }
 
         switch (token.type) {
-            case _t.WHITESAPCE:
+            case _t.WHITESPACE:
                 break;
 
             case _t.STRING:
