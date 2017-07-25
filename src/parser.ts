@@ -20,10 +20,11 @@ export interface ParsedToken {
 }
 
 interface Token {
-    name?: string,
-    args?: string[],
-    content?: Token[],
+    name?: string;
+    args?: string[];
+    content?: Token[];
     block?: boolean;
+    ends?: boolean;
     compile: () => string
 }
 
@@ -50,7 +51,7 @@ export class TokenParser {
     filename: string;
     line: number;
     filters: Filters;
-    escape: boolean;
+    escape: boolean | 'html' | 'js';
     private parsers: Parsers = {};
     private tokens: LexerToken[];
     private isLast: boolean = false;
@@ -147,6 +148,7 @@ export class TokenParser {
             lastState = (this.state.length) ? this.state[this.state.length - 1] : null,
             temp;
 
+        // The parse of the tag ends here
         if (fn && typeof fn === 'function') {
             if (!fn.call(this, token)) {
                 return;
@@ -489,9 +491,9 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
      * @return {TagToken} Parsed token object.
      */
     function parseTag(str: string, line: number) {
-        let tokens, parser, chunks, tagName, tag, args, last;
+        let tokens: LexerToken[], parser: TokenParser, chunks: string[], tagName: string, tag, args, last;
 
-        if (utils.startWith(str, 'end')) {
+        if (str.startsWith('end')) {
             last = stack[stack.length - 1];
             if (last && last.name === str.split(/\s+/)[0].replace(/^end/, '') && last.ends) {
                 switch (last.name) {
@@ -516,16 +518,37 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         }
 
         chunks = str.split(/\s+(.+)?/);
-        tagName = <string>chunks.shift();
+        tagName = chunks.shift();
 
         if (!tags.hasOwnProperty(tagName)) {
             utils.throwError(`Unexpected tag "${str}"`, line, opts.filename);
         }
 
-        tokens = lexer.read(utils.strip(chunks.join('')));
+        tokens = lexer.read(chunks.join(' ').trim());
         parser = new TokenParser(tokens, filters, false, line, opts.filename);
         tag = tags[tagName];
 
+        /**
+         * Define custom parsing methods for your tag.
+         * @callback parse
+         *
+         * @example
+         * exports.parse = function (str, line, parser, types, options, swig) {
+         *   parser.on('start', function () {
+         *     // ...
+         *   });
+         *   parser.on(types.STRING, function (token) {
+         *     // ...
+         *   });
+         * };
+         *
+         * @param str       The full token string of the tag.
+         * @param line      The line number that this tag appears on.
+         * @param parser    A TokenParser instance.
+         * @param stack     The current stack of open tags.
+         * @param opts      Swig Options Object.
+         * @param swig      The Swig instance (gives acces to loaders, parsers, etc)
+         */
         if (!tag.parse(chunks[1], line, parser, stack, opts, swig)) {
             utils.throwError('Unexpected tag "' + tagName + '"', line, opts.filename);
         }
@@ -646,11 +669,11 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
 
 /**
  * Compile an array of tokens.
- * @param  template     An array of template tokens.
- * @param  parents  Array of parent templates.
- * @param  [options]   Swig options object.
- * @param  [blockName]   Name of the current block context.
- * @return {string}               Partial for a compiled JavaScript method that will output a rendered template.
+ * @param  template         An array of template tokens.
+ * @param  parents          Array of parent templates.
+ * @param  [options]        Swig options object.
+ * @param  [blockName]      Name of the current block context.
+ * @return {string}         Partial for a compiled JavaScript method that will output a rendered template.
  */
 const compile = function (template, parents, options: SwigOptions, blockName?: string) {
     let out = '',
@@ -658,7 +681,6 @@ const compile = function (template, parents, options: SwigOptions, blockName?: s
 
     utils.each(tokens, function (token) {
         let o;
-        // 纯文字在这里填充进去
         if (typeof token === 'string') {
             out += '_output += "' + token.replace(/\\/g, '\\\\').replace(/\n|\r/g, '\\n').replace(/"/g, '\\"') + '";\n';
             return;
