@@ -78,11 +78,11 @@ export class TokenParser {
             if (prevToken) {
                 while (prevToken.type === _t.WHITESAPCE) {
                     i -= 1;
-                    prevToken = token[i - 1];
+                    prevToken = tokens[i - 1];
                 }
-                this.prevToken = prevToken;
-                this.parseToken(token);
             }
+            this.prevToken = prevToken;
+            this.parseToken(token);
         });
         if (this.parsers.end) {
             this.parsers.end.call(this);
@@ -408,11 +408,7 @@ export class TokenParser {
         function buildDot(ctx: string) {
             return '(' + checkDot(ctx) + '?' + ctx + match.join('.') + ' : "")';
         }
-        result = '(' +
-            checkDot('_ctx.') + ' ? ' +
-            buildDot('_ctx.') + ' : ' +  // Read local variable
-            buildDot('') +               // Read global variable
-            ')';
+        result = '(' + checkDot('_ctx.') + ' ? ' + buildDot('_ctx.') + ' : ' + buildDot('') + ')';
 
         // If variable = null, will return ''
         return '(' + result + ' !== null ? ' + result + ' : ' + '"" )';
