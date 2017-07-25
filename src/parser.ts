@@ -619,11 +619,11 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
             if (inRaw && !token) {
                 token = chunk;
             }
-        } else if (inRaw || (!utils.startWith(chunk, cmtOpen) && !utils.endsWith(chunk, cmtClose))) {
+        } else if (inRaw || (!chunk.startsWith(cmtOpen) && !chunk.endsWith(cmtClose))) {
             // Is content string
             token = (stripNext) ? chunk.replace(/^\s*/, '') : chunk;
             stripNext = false;
-        } else if (utils.startWith(chunk, cmtOpen) && utils.endsWith(chunk, cmtClose)) {
+        } else if (chunk.startsWith(cmtOpen) && chunk.endsWith(cmtClose)) {
             return;
         }
 
