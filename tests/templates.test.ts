@@ -46,7 +46,7 @@ describe('Templates', function () {
     tests = _.filter(casefiles, isTest);
     expectations = _.filter(casefiles, isExpectation);
     cases = _.groupBy(tests.concat(expectations), function (f) {
-        return f.split('.')[0];
+        return (f as string).split('.')[0];
     });
 
     _.each(cases, function (files, c) {
