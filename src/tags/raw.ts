@@ -9,7 +9,7 @@ const compile: CompileFunction = function (compiler, args, content, parents, opt
 
 const parse: ParseFunction = function (str, line, parser) {
     parser.on('*', function (token: LexerToken) {
-        throw new Error(`Unexpected token "${token.match}" in raw tag on line ${line}`);
+        throw new Error(`Unexpected token "${token.match}" in raw tag on line ${line}.`);
     })
     return true;
 }

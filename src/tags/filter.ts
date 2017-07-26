@@ -20,18 +20,18 @@ import filters from '../filters';
 
 const compile: CompileFunction = function (compiler, args, contents, parents, options, blockName) {
     let filter = args.shift().replace(/\($/, ''),
-        val = `(function () {
-                    var _output = "";
-                    ${compiler(contents, parents, options, blockName)}
-                    return _output;
-                })();`;
+        val = '(function () {\n' +
+            '  var _output = "";\n' +
+            compiler(contents, parents, options, blockName) +
+            '  return _output;\n' +
+            '})()';
 
     if (args[args.length - 1] === ')') {
         args.pop();
     }
 
     let _argsStr = (args.length) ? ', ' + args.join('') : '';
-    return `_output += _filters["${filters}"](${val + _argsStr});`;
+    return '_output += _filters["' + filter + '"](' + val + _argsStr + ');\n';
 }
 
 const parse: ParseFunction = function (str, line, parser, stack, opts) {

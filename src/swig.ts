@@ -442,7 +442,7 @@ export class Swig {
 
         while (parentName) {
             if (!options.filename) {
-                throw new Error(`Cannot extend "${parentName}" because current template has no filename`);
+                throw new Error(`Cannot extend "${parentName}" because current template has no filename.`);
             }
 
             parentFile = parentFile || options.filename;
