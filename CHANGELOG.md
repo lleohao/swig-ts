@@ -1,5 +1,5 @@
-<a name="1.0.6"></a>
-## [1.0.6](https://github.com/lleohao/swig-tp/compare/v1.0.5...v1.0.6) (2017-07-26)
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/lleohao/swig-tp/compare/v1.0.6...v1.1.0) (2017-07-26)
 
 
 ### Bug Fixes
@@ -9,7 +9,11 @@
 * **swig:** Fix import block tag error. ([b94bccf](https://github.com/lleohao/swig-tp/commit/b94bccf))
 * **swig:** Fix interface error. ([408a159](https://github.com/lleohao/swig-tp/commit/408a159))
 * **swig:** Fix undefined error. ([0b0bdca](https://github.com/lleohao/swig-tp/commit/0b0bdca))
+* **swig:** Fix whitespace control error. ([9c9c50c](https://github.com/lleohao/swig-tp/commit/9c9c50c))
+* **tags:** Fix autoescape params error. ([ac73692](https://github.com/lleohao/swig-tp/commit/ac73692))
+* **tags:** Fix filter tag error. ([68e8686](https://github.com/lleohao/swig-tp/commit/68e8686))
 * **tags:** Fix for tag error. ([cce811f](https://github.com/lleohao/swig-tp/commit/cce811f))
+* **tags:** Fix for tags error. ([57e6940](https://github.com/lleohao/swig-tp/commit/57e6940))
 * **tags:** Fix include error. ([6f29121](https://github.com/lleohao/swig-tp/commit/6f29121))
 * **tags:** Fix macro tag error. ([b712262](https://github.com/lleohao/swig-tp/commit/b712262))
 * **tags:** Fix set tag error. ([69bdc5a](https://github.com/lleohao/swig-tp/commit/69bdc5a))
