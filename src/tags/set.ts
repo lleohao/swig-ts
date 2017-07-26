@@ -43,11 +43,10 @@ const parse: ParseFunction = function (str, line, parser) {
     let nameSet = '',
         propertyName;
 
-
     parser.on(types.VAR, function (token) {
         if (propertyName) {
             // Tell the parser where to find the variable
-            propertyName = '_ctx.' + token.match;
+            propertyName += '_ctx.' + token.match;
             return;
         }
 
@@ -68,13 +67,40 @@ const parse: ParseFunction = function (str, line, parser) {
         return true;
     });
 
+    parser.on(types.STRING, function (token) {
+        if (propertyName && !this.out.length) {
+            propertyName += token.match;
+            return;
+        }
+
+        return true;
+    });
+
+    parser.on(types.BRACKETCLOSE, function (token) {
+        if (propertyName && !this.out.length) {
+            nameSet += propertyName + token.match;
+            propertyName = undefined;
+            return;
+        }
+
+        return true;
+    });
+
     parser.on(types.DOTKEY, function (token) {
+        if (!propertyName && !nameSet) {
+            return true;
+        }
+        nameSet += '.' + token.match;
+        return;
+    });
+
+    parser.on(types.ASSIGNMENT, function (token) {
         if (this.out.length || !nameSet) {
             throw new Error('Unexpected assignment "' + token.match + '" on line ' + line + '.');
         }
 
         this.out.push(
-            // Prevent the ser from spilling into global scope
+            // Prevent the set from spilling into global scope
             '_ctx.' + nameSet
         );
         this.out.push(token.match);

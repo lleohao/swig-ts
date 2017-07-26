@@ -114,7 +114,15 @@ const parse: ParseFunction = function (str, line, parser) {
         }
         ready = true;
         this.filterApplyIndex.push(this.out.length);
-    })
+    });
+
+    parser.on(types.COMPARATOR, function (token) {
+        if (token.match !== 'in' || !firstVar) {
+            throw new Error('Unexpected token "' + token.match + '" on line ' + line + '.');
+        }
+        ready = true;
+        this.filterApplyIdx.push(this.out.length);
+    });
 
     return true;
 }

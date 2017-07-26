@@ -1,6 +1,10 @@
 import { CompileFunction, ParseFunction } from './index';
 import { TYPES as types } from '../lexer';
 
+const ignore = 'ignore',
+    missing = 'missing',
+    only = 'only';
+
 /**
  * Includes a template partial in place. The template is rendered within the current locals variable context.
  *
@@ -21,16 +25,12 @@ import { TYPES as types } from '../lexer';
  * {% include "/this/file/does/not/exist" ignore missing %}
  * // => (Nothing! empty string)
  *
- * @param {string|var}  file      The path, relative to the template root, to render into the current context.
- * @param {literal}     [with]    Literally, "with".
- * @param {object}      [context] Local variable key-value object context to provide to the included file.
- * @param {literal}     [only]    Restricts to <strong>only</strong> passing the <code>with context</code> as local variables–the included template will not be aware of any other local variables in the parent template. For best performance, usage of this option is recommended if possible.
- * @param {literal}     [ignore missing] Will output empty string if not found instead of throwing an error.
+ * @param file      The path, relative to the template root, to render into the current context.
+ * @param [with]    Literally, "with".
+ * @param [context] Local variable key-value object context to provide to the included file.
+ * @param [only]    Restricts to only passing the with context as local variables–the included template will not be aware of any other local variables in the parent template. For best performance, usage of this option is recommended if possible.
+ * @param [ignore missing] Will output empty string if not found instead of throwing an error.
  */
-
-const ignore = 'ignore',
-    missing = 'missing',
-    only = 'only';
 
 const compile: CompileFunction = function (compiler, args) {
     let file = args.shift(),
@@ -46,7 +46,7 @@ const compile: CompileFunction = function (compiler, args) {
         '})(' +
         ((onlyCtx && w) ? w : (!w ? '_ctx' : '_utils.extend({}, _ctx, ' + w + ')')) +
         ');\n' +
-        (ignore ? '} cacte (e) {}\n' : '');
+        (ignore ? '} catch (e) {}\n' : '');
 }
 
 const parse: ParseFunction = function (str, line, parser, stack, opts) {
@@ -59,7 +59,7 @@ const parse: ParseFunction = function (str, line, parser, stack, opts) {
         }
 
         return true;
-    })
+    });
 
     parser.on(types.VAR, function (token) {
         if (!file) {
@@ -72,7 +72,7 @@ const parse: ParseFunction = function (str, line, parser, stack, opts) {
             return;
         }
 
-        if (!w && token.match === only && this.prevToken.match !== 'with') {
+        if (w && token.match === only && this.prevToken.match !== 'with') {
             this.out.push(token.match);
             return;
         }
@@ -98,7 +98,7 @@ const parse: ParseFunction = function (str, line, parser, stack, opts) {
 
     parser.on('end', function () {
         this.out.push(opts.filename || null);
-    })
+    });
 
     return true;
 }

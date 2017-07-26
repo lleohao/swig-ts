@@ -28,7 +28,7 @@ const compile: CompileFunction = function (compiler, args) {
         allMacros = utils.map(args, function (arg) {
             return arg.name;
         }).join('|'),
-        out = '_ctx.' + ctx + ' = {}\n var _output = "";\n',
+        out = '_ctx.' + ctx + ' = {};\n  var _output = "";\n',
         replacements = utils.map(args, function (arg) {
             return {
                 ex: new RegExp('_ctx.' + arg.name + '(\\W)(?!' + allMacros + ')', 'g'),
@@ -36,13 +36,15 @@ const compile: CompileFunction = function (compiler, args) {
             };
         });
 
+    // Replace all occurrences of all macros in this file with
+    // proper namespaced definitions and calls
     utils.each(args, function (arg) {
         let c = arg.compiled;
         utils.each(replacements, function (re) {
             c = c.replace(re.ex, re.re);
         });
         out += c;
-    })
+    });
 
     return out;
 }
@@ -57,7 +59,7 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
     _parser.on(types.STRING, function (token) {
         if (!tokens) {
             tokens = swig.parseFile(token.match.replace(/^("|')|("|')$/g, ''), parseOpts).tokens;
-            utils.each(tokens, function (token) {
+            utils.each(tokens, (token) => {
                 var out = '',
                     macroName;
                 if (!token || token.name !== 'macro' || !token.compile) {
@@ -66,12 +68,12 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
                 macroName = token.args[0];
                 out += token.compile(compiler, token.args, token.content, [], compileOpts) + '\n';
                 this.out.push({ compiled: out, name: macroName });
-            }, this);
+            });
             return;
         }
 
         throw new Error('Unexpected string ' + token.match + ' on line ' + line + '.');
-    })
+    });
 
     _parser.on(types.VAR, function (token) {
         if (!tokens || ctx) {
@@ -86,7 +88,6 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
         this.out.push(ctx);
         return false;
     });
-
 
     return true;
 }
