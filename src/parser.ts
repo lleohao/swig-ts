@@ -226,7 +226,7 @@ export class TokenParser {
                     this.out.splice(this.filterApplyIdx[this.filterApplyIdx.length - 1], 0, '(');
                     if (prevToken && prevTokenType === _t.VAR) {
                         temp = prevToken.match.split('.').slice(0, -1);
-                        this.out.push(' || _fn).call' + this.checkMatch(temp));
+                        this.out.push(' || _fn).call(' + this.checkMatch(temp));
                         this.state.push(_t.METHODOPEN);
                         this.escape = false;
                     } else {
@@ -244,11 +244,11 @@ export class TokenParser {
                 if (temp !== _t.PARENOPEN && temp !== _t.FUNCTION && temp !== _t.FILTER) {
                     utils.throwError('Mismatched nesting state', this.line, this.filename);
                 }
-
                 this.out.push(')');
+                // Once off the previous entry
                 this.filterApplyIdx.pop();
-
                 if (temp !== _t.FILTER) {
+                    // Once for the open paren
                     this.filterApplyIdx.pop();
                 }
                 break;
@@ -281,7 +281,7 @@ export class TokenParser {
                     utils.throwError('Unexpected logic', this.line, this.filename);
                 }
                 this.out.push(match);
-                break
+                break;
 
             case _t.NOT:
                 this.out.push(match);
@@ -303,6 +303,7 @@ export class TokenParser {
                 }
                 this.out.push('[');
                 break;
+
             case _t.BRACKETCLOSE:
                 temp = this.state.pop();
                 if (temp !== _t.BRACKETOPEN && temp !== _t.ARRAYOPEN) {
