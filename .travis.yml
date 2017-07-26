@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+    - "6"
+    - "8"
+before_script:
+    - npm install -g mocha should ts-node
+script: npm test
