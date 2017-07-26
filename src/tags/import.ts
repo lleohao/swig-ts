@@ -57,7 +57,7 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
     _parser.on(types.STRING, function (token) {
         if (!tokens) {
             tokens = swig.parseFile(token.match.replace(/^("|')|("|')$/g, ''), parseOpts).tokens;
-            utils.each(tokens, function (token) {
+            utils.each(tokens, (token) => {
                 var out = '',
                     macroName;
                 if (!token || token.name !== 'macro' || !token.compile) {
@@ -66,7 +66,7 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
                 macroName = token.args[0];
                 out += token.compile(compiler, token.args, token.content, [], compileOpts) + '\n';
                 this.out.push({ compiled: out, name: macroName });
-            }, this);
+            });
             return;
         }
 
@@ -86,7 +86,6 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
         this.out.push(ctx);
         return false;
     });
-
 
     return true;
 }
