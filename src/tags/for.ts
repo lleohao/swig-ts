@@ -84,7 +84,7 @@ const parse: ParseFunction = function (str, line, parser) {
     let firstVar, ready;
 
     parser.on(types.NUMBER, function (token) {
-        let lastState = this.state.length ? this.state.length[this.state.length - 1] : null;
+        let lastState = this.state.length ? this.state[this.state.length - 1] : null;
         if (!ready ||
             (lastState !== types.ARRAYOPEN &&
                 lastState !== types.CURLYOPEN &&
@@ -109,11 +109,12 @@ const parse: ParseFunction = function (str, line, parser) {
     });
 
     parser.on(types.COMMA, function (token) {
-        if (token.match !== 'in' || !firstVar) {
-            throw new Error('Unexpected token "' + token.match + '" on line ' + line + '.');
+        if (firstVar && this.prevToken.type === types.VAR) {
+            this.out.push(token.match);
+            return;
         }
-        ready = true;
-        this.filterApplyIndex.push(this.out.length);
+
+        return true;
     });
 
     parser.on(types.COMPARATOR, function (token) {
