@@ -10,11 +10,11 @@ describe('Regressions', function () {
             .be.eql('foo\\ blah \\ and stuff');
     });
 
-    // it('gh-303: sets work in loops', function () {
-    //     var opts = { locals: { b: [1] } };
-    //     should(swig.render('{% set foo = "old" %}{% for a in b %}{% if a %}{% set foo = "new" %}{% endif %}{% endfor %}{{ foo }}', opts))
-    //         .be.eql('new');
-    // });
+    it('gh-303: sets work in loops', function () {
+        var opts = { locals: { b: [1] } };
+        should(swig.render('{% set foo = "old" %}{% for a in b %}{% if a %}{% set foo = "new" %}{% endif %}{% endfor %}{{ foo }}', opts))
+            .be.eql('new');
+    });
 
     it('gh-322: logic words are not partially matched', function () {
         should(swig.render('{{ org }}', { locals: { org: 'foo' } })).be.eql('foo');
