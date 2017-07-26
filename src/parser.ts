@@ -603,12 +603,12 @@ const parse = function (swig: Swig, source: string, opts: SwigOptions, tags: Tag
         if (!inRaw && chunk.startsWith(varOpen) && chunk.endsWith(varClose)) {
             // Is a variable.
             stripPrev = varStripBefore.test(chunk);
-            stripNext = varStripBefore.test(chunk);
+            stripNext = varStripAfter.test(chunk);
             token = parseVariable(chunk.replace(varStrip, ''), line);
         } else if (chunk.startsWith(tagOpen) && chunk.endsWith(tagClose)) {
             // Is a tag
-            stripPrev = tagStripAfter.test(chunk);
-            stripNext = tagStripBefore.test(chunk);
+            stripPrev = tagStripBefore.test(chunk);
+            stripNext = tagStripAfter.test(chunk);
             token = parseTag(chunk.replace(tagStrip, ''), line);
             if (token) {
                 if (token.name === 'extends') {
