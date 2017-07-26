@@ -596,6 +596,7 @@ export class Swig {
         let key = options ? options.filename : null,
             cached = key ? this.cacheGet(key, options) : null,
             filters = this.filters,
+            self = this,
             context,
             contextLength,
             pre;
@@ -620,7 +621,7 @@ export class Swig {
                 lcls = {};
             }
 
-            return pre.tpl(this, lcls, filters, utils, efn);
+            return pre.tpl(self, lcls, filters, utils, efn);
         }
 
         utils.extend(compiled, pre.tokes);
@@ -629,7 +630,7 @@ export class Swig {
             this.cacheSet(key, options, compiled);
         }
 
-        return compiled.bind(this);
+        return compiled;
     }
 
     /**
