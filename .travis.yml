@@ -5,3 +5,6 @@ node_js:
 before_script:
     - npm install -g mocha should ts-node
 script: npm test
+git:
+  depth: 1
+  
