@@ -26,8 +26,8 @@ const parse: ParseFunction = function (str, line, parser, stack, opts) {
     let matched;
     parser.on('*', function (token) {
         if (!matched &&
-            (token.type === types.BOOL) ||
-            (token.type === types.STRING && strings.indexOf(token.match) === -1)) {
+            (token.type === types.BOOL ||
+                (token.type === types.STRING && strings.indexOf(token.match) === -1))) {
             this.out.push(token.match);
             matched = true;
             return;
