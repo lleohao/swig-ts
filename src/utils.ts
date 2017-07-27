@@ -1,110 +1,28 @@
 const isArray = Array.isArray;
+const extend = Object.assign;
+const keys = Object.keys;
 
-export interface Enumerable {
-    [key: string]: any;
-    [kye: number]: any;
-}
-
-const each = function (obj: Enumerable, fn: Function, context?) {
-    let i, l;
-
+const each = function <T, U extends object>(obj: T[] | U, fn: (v: T | any, i?: number | string, o?: T[] | U) => void, context?): T[] | U {
     if (isArray(obj)) {
-        i = 0;
-        l = obj.length;
-        for (i; i < l; i += 1) {
-            if (context ? fn.call(context, obj[i], i, obj) === false : fn(obj[i], i, obj) === false) {
-                break;
-            }
-        }
+        obj.forEach(fn, context);
     } else {
-        for (i in obj) {
+        for (const i in obj) {
             if (obj.hasOwnProperty(i)) {
-                if (context ? fn.call(context, obj[i], i, obj) === false : fn(obj[i], i, obj) === false) {
-                    break;
+                if (context) {
+                    fn.call(context, obj[i], i, obj)
+                } else {
+                    fn(obj[i], i, obj);
                 }
             }
         }
     }
 
     return obj;
-}
+};
 
-/**
- * Test ig an item in an enumerable matches your conditions.
- * 
- * @param {Enumerable}    obj     Enumerable object.
- * @param {Function }       fn      Executed for each item. Return if you condition is met. 
- */
-const some = function (obj: Enumerable, fn: Function): boolean {
-    let i = 0,
-        result,
-        l;
-
-    if (isArray(obj)) {
-        l = obj.length;
-        for (i; i < l; i += 1) {
-            result = fn(obj[i], i, obj);
-            if (result) {
-                break;
-            }
-        }
-    } else {
-        each(obj, function (value: any, index: number) {
-            result = fn(value, index, obj);
-            return !(result);
-        })
-    }
-
-    return !!result;
-}
-
-const map = function (obj: Enumerable, fn: Function) {
-    let result = [];
-
-    if (isArray(obj)) {
-        for (let i = 0, l = obj.length; i < l; i += 1) {
-            result[i] = fn(obj[i], i, obj);
-        }
-    } else {
-        for (let i in obj) {
-            if (obj.hasOwnProperty(i)) {
-                result[i] = fn(obj[i], i);
-            }
-        }
-    }
-
-    return result;
-}
-
-const extend = function (...args: any[]) {
-    let target = args[0];
-    let objs = (args.length > 1) ? Array.prototype.slice.call(args, 1) : [];
-
-    for (let i = 0; i < objs.length; i++) {
-        let obj = objs[i] || {};
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                (target as any)[key] = obj[key];
-            }
-        }
-    }
-
-    return target;
-}
-
-const keys = function (obj: any) {
-    if (!obj) {
-        return [];
-    }
-
-    if (Object.keys) {
-        return Object.keys(obj);
-    }
-
-    return map(obj, function (v: any, k: any) {
-        return k;
-    })
-}
+const map = function <T, U>(obj: T[], fn: (v: T, i?: number, o?: T[]) => U, context?): U[] {
+    return obj.map(fn, context);
+};
 
 
 /**
@@ -124,13 +42,13 @@ const throwError = function (message: string, line?: string | number, file?: str
     }
 
     throw new Error(message + '.');
+    ;
 }
 
 
 export default {
     isArray,
     each,
-    some,
     map,
     keys,
     extend,

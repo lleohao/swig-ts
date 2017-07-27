@@ -273,7 +273,7 @@ export class Swig {
      * @param name      Name of filter, used in templates. Will overwrite previously defined filters, if using same name.
      * @param method    Function that acts against the input.
      */
-    public setFilter(name: string, method: (input: string) => string): void {
+    public setFilter(name: string, method: (...args) => any): void {
         this.filters[name] = method;
     }
 

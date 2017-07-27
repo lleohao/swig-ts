@@ -5,20 +5,25 @@ import filters from '../filters';
 
 /**
  * Apply a filter to an entire block of template.
- * 
+ *
  * @alias filter
- * 
+ *
  * @example
  * {% filter uppercase %}oh, hi, {{ name }}{% endfilter %}
- * // => OH HI, LLEO  
+ * // => OH HI, LLEO
  * @example
  * {% filter replace(".", "!", "g") %}Hi. My name is Paul.{% endfilter %}
  * // => Hi! My name is Paul!
- * 
- * @param {function} filter  The filter that should be applied to the contents of the tag.
+ *
+ * @param compiler
+ * @param args
+ * @param contents
+ * @param parents
+ * @param options
+ * @param blockName
  */
 
-const compile: CompileFunction = function (compiler, args, contents, parents, options, blockName) {
+const compile: CompileFunction = function (compiler, args: string[], contents, parents, options, blockName) {
     let filter = args.shift().replace(/\($/, ''),
         val = '(function () {\n' +
             '  var _output = "";\n' +
@@ -32,7 +37,7 @@ const compile: CompileFunction = function (compiler, args, contents, parents, op
 
     let _argsStr = (args.length) ? ', ' + args.join('') : '';
     return '_output += _filters["' + filter + '"](' + val + _argsStr + ');\n';
-}
+};
 
 const parse: ParseFunction = function (str, line, parser, stack, opts) {
     let filter;

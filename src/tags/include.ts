@@ -25,14 +25,11 @@ const ignore = 'ignore',
  * {% include "/this/file/does/not/exist" ignore missing %}
  * // => (Nothing! empty string)
  *
- * @param file      The path, relative to the template root, to render into the current context.
- * @param [with]    Literally, "with".
- * @param [context] Local variable key-value object context to provide to the included file.
- * @param [only]    Restricts to only passing the with context as local variables–the included template will not be aware of any other local variables in the parent template. For best performance, usage of this option is recommended if possible.
- * @param [ignore missing] Will output empty string if not found instead of throwing an error.
+ * @param compiler
+ * @param args
  */
 
-const compile: CompileFunction = function (compiler, args) {
+const compile: CompileFunction = function (compiler, args: string[]) {
     let file = args.shift(),
         onlyIdx = args.indexOf(only),
         onlyCtx = onlyIdx !== -1 ? args.splice(onlyIdx, 1) : false,
@@ -47,7 +44,7 @@ const compile: CompileFunction = function (compiler, args) {
         ((onlyCtx && w) ? w : (!w ? '_ctx' : '_utils.extend({}, _ctx, ' + w + ')')) +
         ');\n' +
         (ignore ? '} catch (e) {}\n' : '');
-}
+};
 
 const parse: ParseFunction = function (str, line, parser, stack, opts) {
     let file, w;
@@ -101,7 +98,7 @@ const parse: ParseFunction = function (str, line, parser, stack, opts) {
     });
 
     return true;
-}
+};
 
 export default {
     compile: compile,

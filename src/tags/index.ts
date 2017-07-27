@@ -15,7 +15,7 @@ import set from './set';
 import spaceless from './spaceless';
 
 import { SwigOptions, Swig } from '../swig';
-import { TokenParser } from '../parser';
+import { TokenParser, ParsedToken } from '../parser';
 
 
 export interface TagToken {
@@ -45,7 +45,7 @@ export interface CompileFunction {
      * @param {SwigOpts} [options] Swig Options Object
      * @param {string} [blockName] Name of the direct block parent, if any.
      */
-    (compiler, args: string[], content: any[], parents: any[], options: SwigOptions, blockName: string): string | void;
+    (compiler, args: ParsedToken[] | string[], content: any[], parents: any[], options: SwigOptions, blockName: string): string | void;
 }
 
 export interface ParseFunction {
