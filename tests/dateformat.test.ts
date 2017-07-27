@@ -30,7 +30,7 @@ const cases = {
         { c: 'v|date("z", 480)', v: makeDate(480, 2011, 11, 31), e: '364' },
 
         // Week
-        { c: 'v|date("W")', v: d, e: '37' },
+        { c: 'v|date("W", 0)', v: d, e: '36' },
 
         // Month
         { c: 'v|date("F")', v: d, e: 'September' },
