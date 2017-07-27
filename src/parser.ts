@@ -190,7 +190,7 @@ export class TokenParser {
 
             case _t.FILTER:
                 if (!this.filters.hasOwnProperty(match) || typeof this.filters[match] !== 'function') {
-                    utils.throwError(`Invaliad filter "${match}"`, this.line, this.filename);
+                    utils.throwError(`Invalid filter "${match}"`, this.line, this.filename);
                 }
                 this.escape = this.filters[match].safe ? false : this.escape;
                 this.out.splice(this.filterApplyIdx[this.filterApplyIdx.length - 1], 0, '_filters["' + match + '"](');
@@ -199,7 +199,7 @@ export class TokenParser {
 
             case _t.FILTEREMPTY:
                 if (!this.filters.hasOwnProperty(match) || typeof this.filters[match] !== 'function') {
-                    utils.throwError(`Invaliad filter "${match}"`, this.line, this.filename);
+                    utils.throwError(`Invalid filter "${match}"`, this.line, this.filename);
                 }
                 this.escape = this.filters[match].safe ? false : this.escape;
                 this.out.splice(this.filterApplyIdx[this.filterApplyIdx.length - 1], 0, '_filters["' + match + '"](');

@@ -198,7 +198,7 @@ const escape = function (input: any, type: string): string {
 
     switch (type) {
         case 'js':
-            inp = inp.replace(/\\/, '\\u005c');
+            inp = inp.replace(/\\/, '\\u005C');
             for (i; i < inp.length; i += 1) {
                 code = inp.charCodeAt(i);
                 if (code < 32) {
@@ -277,7 +277,7 @@ const first = function (input: any): string {
  */
 const groupBy = function (input: any, key: string): object {
     if (!utils.isArray(input)) {
-        return;
+        return input;
     }
 
     const out = {};
@@ -668,7 +668,7 @@ const url_encode = function (input: any) {
         return out;
     }
 
-    return decodeURIComponent(input);
+    return encodeURIComponent(input);
 }
 
 const url_decode = function (input: any) {
@@ -677,7 +677,7 @@ const url_decode = function (input: any) {
         return out;
     }
 
-    return encodeURIComponent(input);
+    return decodeURIComponent(input);
 }
 
 export default {

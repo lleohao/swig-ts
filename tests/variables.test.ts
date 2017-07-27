@@ -124,7 +124,7 @@ describe('Variables', () => {
         it('with unknown filters', function () {
             should.throws(function () {
                 swig.render('\n\n{{ a|bar() }}');
-            }, /Invaliad filter "bar" on line 3./);
+            }, /Invalid filter "bar" on line 3./);
         });
 
         it('with weird closing characters', function () {
@@ -157,7 +157,7 @@ describe('Variables', () => {
 
         it('with bad commas', function () {
             should.throws(function () {
-                let swig = new Swig({autoescape: false});
+                let swig = new Swig({ autoescape: false });
                 swig.render('{{ foo, bar }}');
             }, /Unexpected comma on line 1\./);
         });
