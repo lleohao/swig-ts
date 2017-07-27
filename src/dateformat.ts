@@ -31,17 +31,17 @@ export class DateZ {
     constructor(...args) {
         this.date = this.dateZ = (args.length > 1) ? new Date(Date.UTC.apply(Date, args) + ((new Date()).getTimezoneOffset() * 60000)) : (args.length === 1) ? new Date(new Date(args[0])) : new Date();
         this.timezoneOffset = this.dateZ.getTimezoneOffset();
+        const d = this;
 
-        utils.each(this.members.z, (name) => {
-            this[name] = () => {
-                return this.dateZ[name]();
+        utils.each(this.members.z, function (name) {
+            d[name] = function () {
+                return d.dateZ[name]();
             };
         });
-
-        utils.each(this.members['defaults'], (name) => {
-            this[name] = () => {
-                return this.date[name]();
-            }
+        utils.each(this.members['default'], function (name) {
+            d[name] = function () {
+                return d.date[name]();
+            };
         });
 
     }
@@ -76,18 +76,18 @@ const l = function (input: Date) {
     return _days.full[input.getDay()];
 };
 const N = function (input: Date) {
-    var d = input.getDay();
+    let d = input.getDay();
     return (d >= 1) ? d : 7;
 };
 const S = function (input: Date) {
-    var d = input.getDate();
+    let d = input.getDate();
     return (d % 10 === 1 && d !== 11 ? 'st' : (d % 10 === 2 && d !== 12 ? 'nd' : (d % 10 === 3 && d !== 13 ? 'rd' : 'th')));
 };
 const w = function (input: Date) {
     return input.getDay();
 };
 const z = function (input: Date, offset: number) {
-    var year = input.getFullYear(),
+    let year = input.getFullYear(),
         e = new DateZ(year, input.getMonth(), input.getDate(), 12, 0, 0),
         d = new DateZ(year, 0, 1, 12, 0, 0);
 
@@ -98,7 +98,7 @@ const z = function (input: Date, offset: number) {
 
 // Week
 const W = function (input: Date) {
-    var target = new Date(input.valueOf()),
+    let target = new Date(input.valueOf()),
         dayNr = (input.getDay() + 6) % 7,
         fThurs;
 
@@ -134,7 +134,7 @@ const L = function (input: Date) {
     return new Date(input.getFullYear(), 1, 29).getDate() === 29;
 };
 const o = function (input: Date) {
-    var target = new Date(input.valueOf());
+    let target = new Date(input.valueOf());
     target.setDate(target.getDate() - ((input.getDay() + 6) % 7) + 3);
     return target.getFullYear();
 };
@@ -153,38 +153,38 @@ const A = function (input: Date) {
     return input.getHours() < 12 ? 'AM' : 'PM';
 };
 const B = function (input: Date) {
-    var hours = input.getUTCHours(), beats;
+    let hours = input.getUTCHours(), beats;
     hours = (hours === 23) ? 0 : hours + 1;
     beats = Math.abs(((((hours * 60) + input.getUTCMinutes()) * 60) + input.getUTCSeconds()) / 86.4).toFixed(0);
     return ('000'.concat(beats).slice(beats.length));
 };
 const g = function (input: Date) {
-    var h = input.getHours();
+    let h = input.getHours();
     return h === 0 ? 12 : (h > 12 ? h - 12 : h);
 };
 const G = function (input: Date) {
     return input.getHours();
 };
 const h = function (input: Date) {
-    var h = input.getHours();
+    let h = input.getHours();
     return ((h < 10 || (12 < h && 22 > h)) ? '0' : '') + ((h < 12) ? h : h - 12);
 };
 const H = function (input: Date) {
-    var h = input.getHours();
+    let h = input.getHours();
     return (h < 10 ? '0' : '') + h;
 };
 const i = function (input: Date) {
-    var m = input.getMinutes();
+    let m = input.getMinutes();
     return (m < 10 ? '0' : '') + m;
 };
 const s = function (input: Date) {
-    var s = input.getSeconds();
+    let s = input.getSeconds();
     return (s < 10 ? '0' : '') + s;
 };
 
 // Timezone
 const O = function (input: Date) {
-    var tz = input.getTimezoneOffset();
+    let tz = input.getTimezoneOffset();
     return (tz < 0 ? '-' : '+') + (tz / 60 < 10 ? '0' : '') + Math.abs((tz / 60)) + '00';
 };
 const Z = function (input: Date) {
@@ -203,38 +203,38 @@ const U = function (input: Date) {
 };
 
 export default {
-    DateZ: DateZ,
-    tzOffset: tzOffset,
-    d: d,
-    D: D,
-    j: j,
-    l: l,
-    N: N,
-    S: S,
-    w: w,
-    z: z,
-    W: W,
-    F: F,
-    m: m,
-    M: M,
-    n: n,
-    t: t,
-    L: L,
-    o: o,
-    Y: Y,
-    y: y,
-    a: a,
-    A: A,
-    B: B,
-    g: g,
-    G: G,
-    h: h,
-    H: H,
-    i: i,
-    s: s,
-    O: O,
-    Z: Z,
-    c: c,
-    r: r,
-    U: U
+    DateZ,
+    tzOffset,
+    d,
+    D,
+    j,
+    l,
+    N,
+    S,
+    w,
+    z,
+    W,
+    F,
+    m,
+    M,
+    n,
+    t,
+    L,
+    o,
+    Y,
+    y,
+    a,
+    A,
+    B,
+    g,
+    G,
+    h,
+    H,
+    i,
+    s,
+    O,
+    Z,
+    c,
+    r,
+    U
 }
