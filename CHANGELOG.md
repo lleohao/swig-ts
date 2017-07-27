@@ -1,3 +1,13 @@
+<a name="1.2.1"></a>
+## [1.2.1](https://github.com/lleohao/swig-tp/compare/v1.2.0...v1.2.1) (2017-07-27)
+
+
+### Bug Fixes
+
+* **dateformat:** Fix week error. ([c7af704](https://github.com/lleohao/swig-tp/commit/c7af704))
+
+
+
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/lleohao/swig-tp/compare/v1.0.6...v1.2.0) (2017-07-27)
 

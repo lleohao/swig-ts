@@ -1,6 +1,6 @@
 {
   "name": "swig-ts",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Use typescipt rewrite swig",
   "main": "lib/swig.js",
   "types": "lib/swig.d.ts",
