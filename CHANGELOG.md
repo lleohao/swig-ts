@@ -1,3 +1,16 @@
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/lleohao/swig-tp/compare/v1.0.6...v1.2.0) (2017-07-27)
+
+
+### Bug Fixes
+
+* **swig:** Fix whitespace control error. ([9c9c50c](https://github.com/lleohao/swig-tp/commit/9c9c50c))
+* **tags:** Fix autoescape params error. ([ac73692](https://github.com/lleohao/swig-tp/commit/ac73692))
+* **tags:** Fix filter tag error. ([68e8686](https://github.com/lleohao/swig-tp/commit/68e8686))
+* **tags:** Fix for tags error. ([57e6940](https://github.com/lleohao/swig-tp/commit/57e6940))
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/lleohao/swig-tp/compare/v1.0.6...v1.1.0) (2017-07-26)
 
