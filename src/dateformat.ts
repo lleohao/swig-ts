@@ -98,15 +98,18 @@ const z = function (input: Date, offset: number) {
 
 // Week
 const W = function (input: Date) {
-    var date = new Date(input.valueOf());
+    let target = new Date(input.valueOf()),
+        dayNr = (input.getDay() + 6) % 7,
+        fThurs;
 
-    var date2 = new Date(date.getFullYear(), 0, 1);
-    var day1 = date.getDay();
-    if (day1 == 0) day1 = 7;
-    var day2 = date2.getDay();
-    if (day2 == 0) day2 = 7;
-    var d = Math.round((date.getTime() - date2.getTime() + (day2 - day1) * (24 * 60 * 60 * 1000)) / 86400000);
-    return Math.ceil(d / 7) + 1;
+    target.setDate(target.getDate() - dayNr + 3);
+    fThurs = target.valueOf();
+    target.setMonth(0, 1);
+    if (target.getDay() !== 4) {
+        target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+    }
+
+    return 1 + Math.ceil((fThurs - target.valueOf()) / 604800000);
 };
 
 // Month
