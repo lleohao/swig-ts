@@ -30,11 +30,13 @@ const ctx = '_ctx.',
  * //    1 -- 2
  * //    2 -- 1
  *
- * @param {literal} [key]     A shortcut to the index of the array or current key accessor.
- * @param {literal} variable  The current value will be assigned to this variable name temporarily. The variable will be reset upon ending the for tag.
- * @param {literal} in        Literally, "in". This token is required.
- * @param {object}  object    An enumerable object that will be iterated over.
  *
+ * @param compiler
+ * @param args
+ * @param content
+ * @param parents
+ * @param options
+ * @param blockName
  * @return {loop.index} The current iteration of the loop (1-indexed)
  * @return {loop.index0} The current iteration of the loop (0-indexed)
  * @return {loop.revindex} The number of iterations from the end of the loop (1-indexed)
@@ -43,7 +45,7 @@ const ctx = '_ctx.',
  * @return {loop.first} True if the current object is the first in the object or array.
  * @return {loop.last} True if the current object is the last in the object or array.
  */
-const compile: CompileFunction = function (compiler, args, content, parents, options, blockName) {
+const compile: CompileFunction = function (compiler, args: string[], content, parents, options, blockName) {
     let val = args.shift(),
         key = '__k',
         ctxloopcache = (ctx + '__loopcache' + Math.random()).replace(/\./g, ''),

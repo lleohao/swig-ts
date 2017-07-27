@@ -81,7 +81,7 @@ export class TokenParser {
         if (this.parsers.start) {
             this.parsers.start.call(this);
         }
-        utils.each(tokens, (token, i) => {
+        utils.each(tokens, (token, i: number) => {
             let prevToken = tokens[i - 1];
             this.isLast = (i === (tokens.length - 1));
             if (prevToken) {

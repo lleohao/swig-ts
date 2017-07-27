@@ -1,7 +1,7 @@
 import { CompileFunction, ParseFunction } from './index';
 import { TYPES as types } from '../lexer';
 import utils from '../utils';
-import parser from '../parser';
+import parser, {ParsedToken} from '../parser';
 
 /**
  * Allows you to import macros from another file directly into your current context.
@@ -19,11 +19,10 @@ import parser from '../parser';
  * {{ tags.stylesheet('global') }}
  * // => <link rel="stylesheet" href="/global.css">
  *
- * @param {string|var}  file      Relative path from the current template file to the file to import macros from.
- * @param {literal}     as        Literally, "as".
- * @param {literal}     varname   Local-accessible object name to assign the macros to.
+ * @param compiler
+ * @param args
  */
-const compile: CompileFunction = function (compiler, args) {
+const compile: CompileFunction = function (compiler, args: ParsedToken[]) {
     let ctx = args.pop(),
         allMacros = utils.map(args, function (arg) {
             return arg.name;
@@ -37,7 +36,7 @@ const compile: CompileFunction = function (compiler, args) {
         });
 
     // Replace all occurrences of all macros in this file with
-    // proper namespaced definitions and calls
+    // proper namespace definitions and calls
     utils.each(args, function (arg) {
         let c = arg.compiled;
         utils.each(replacements, function (re) {
@@ -47,7 +46,7 @@ const compile: CompileFunction = function (compiler, args) {
     });
 
     return out;
-}
+};
 
 const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
     let compiler = parser.compile,
@@ -60,7 +59,7 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
         if (!tokens) {
             tokens = swig.parseFile(token.match.replace(/^("|')|("|')$/g, ''), parseOpts).tokens;
             utils.each(tokens, (token) => {
-                var out = '',
+                let out = '',
                     macroName;
                 if (!token || token.name !== 'macro' || !token.compile) {
                     return;
@@ -90,7 +89,7 @@ const parse: ParseFunction = function (str, line, _parser, stack, opts, swig) {
     });
 
     return true;
-}
+};
 
 export default {
     compile: compile,
